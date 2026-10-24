@@ -57,3 +57,15 @@ What we learned (scenario medians in train):
   The median step inside the group is the best single medium signal (AUC 0.84 against normal), but its AP is only 2%.
 - Single-seed out-of-fold AP moves by about 3 points between seeds (57 to 61). Only trust gains above 1 point on
   three or more seeds.
+
+## Closed squares of first-time pairs, and a medium specialist (both dropped)
+- `explore/squares.py`: a first-time-pair payment s -> r closes a square when s -> r2, s2 -> r and s2 -> r2 are
+  also first-time pairs within +-W. With W = 1 h: exactly 3 squares is 21 medium against 3 normal, 2 to 3 squares
+  is 33 medium against 61 normal (35% precision against a 0.6% base). With W = 3 h normal payments with squares rise
+  from about 340 to about 2,300, so short windows are much sharper.
+- As a module on top of `local,patterns` (3 seeds): ALL 59.24 vs 59.24, medium 9.09 vs 8.07. No ALL gain, deleted.
+  **Suggestion for Aby:** if you want the medium gain, add 1800 and 3600 to `WINDOWS` in `patterns.py`
+  (block_density covers the same idea).
+- `explore/medium_specialist.py`: a second LightGBM trained on medium positives only, blended into the main score
+  (sum, max, rank max). Every blend is worse than the main model alone (best: max 59.16 vs 59.24). The medium cases
+  are not separable with enough confidence to beat easy cases at the top of the ranking.
