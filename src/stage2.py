@@ -36,7 +36,20 @@ def _wallet_window_mean(wallets, times, scores, W):
     return res_sum, res_cnt
 
 
-def collective_features(txs, score):
+MOTIF_FAMILIES = {"bipartite", "chain", "cycle", "fan_in", "fan_out", "fan_out_in", "multi_stage", "random", "stack"}
+RELAY_FAMILIES = {"aggregate_relay", "distributed_relay"}
+
+
+def aux_targets(lab):
+    """Training targets. Family is used only as a target to learn from, never as a feature."""
+    return {
+        "susp": lab["label"].to_numpy(),
+        "motif": lab["family"].isin(MOTIF_FAMILIES).to_numpy().astype(int),
+        "relay": lab["family"].isin(RELAY_FAMILIES).to_numpy().astype(int),
+    }
+
+
+def collective_features(txs, score, prefix=""):
     txs = txs.reset_index(drop=True)
     n = len(txs)
     t = txs["ts"].to_numpy().astype(float)
@@ -46,7 +59,7 @@ def collective_features(txs, score):
     idx = np.arange(n)
     f = pd.DataFrame(index=txs["tx"].to_numpy())
     f["s1"] = score
-    for kind, T in SCALES:
+    for kind, T in [sc for sc in SCALES if sc[1] in (90, 300, 600, 1800, 3600, 7200)]:
         keep = np.ones(n, bool) if kind == "all" else pair_new
         ep = _components(np.r_[s[keep], r[keep]], np.r_[t[keep], t[keep]], np.r_[idx[keep], idx[keep]], n, T)
         if kind != "all":
@@ -63,7 +76,7 @@ def collective_features(txs, score):
         f[f"nb_s_{W}"] = np.where(s_cnt > 0, s_sum / np.maximum(s_cnt, 1), np.nan)
         f[f"nb_r_{W}"] = np.where(r_cnt > 0, r_sum / np.maximum(r_cnt, 1), np.nan)
         f[f"nb_both_{W}"] = (s_sum + r_sum) / np.maximum(s_cnt + r_cnt, 1)
-    return f
+    return f.add_prefix(prefix)
 
 
 if __name__ == "__main__":
@@ -72,15 +85,17 @@ if __name__ == "__main__":
     ap.add_argument("--modules", default="local,episodes")
     ap.add_argument("--predict", action="store_true")
     ap.add_argument("--seeds", type=int, default=3)
+    ap.add_argument("--aux", action="store_true", help="also stack motif and relay membership models")
     args = ap.parse_args()
     modules = args.modules.split(",")
 
     X, lab, groups = training_frame(modules)
     y = lab["label"].to_numpy()
     train_txs, _ = build_split("train", modules)
-    oof1 = np.mean([oof_scores(X, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
-    report(oof1, lab, f"{args.tag} stage1")
-    C = collective_features(train_txs, oof1)
+    targets = aux_targets(lab) if args.aux else {"susp": y}
+    oof1 = {k: np.mean([oof_scores(X, t, groups, seed=sd) for sd in range(args.seeds)], axis=0) for k, t in targets.items()}
+    report(oof1["susp"], lab, f"{args.tag} stage1")
+    C = pd.concat([collective_features(train_txs, o, f"{k}_") for k, o in oof1.items()], axis=1)
     X2 = pd.concat([X, C], axis=1)
     oof2 = np.mean([oof_scores(X2, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
     report(oof2, lab, f"{args.tag} stage2")
@@ -89,7 +104,8 @@ if __name__ == "__main__":
 
     if args.predict:
         test_txs, X_test = build_split("test", modules)
-        s1_test = fit_predict(X, y, X_test, args.seeds)
-        X2_test = pd.concat([X_test, collective_features(test_txs, s1_test)], axis=1)
+        s1_test = {k: fit_predict(X, t, X_test, args.seeds) for k, t in targets.items()}
+        C_test = pd.concat([collective_features(test_txs, o, f"{k}_") for k, o in s1_test.items()], axis=1)
+        X2_test = pd.concat([X_test, C_test], axis=1)
         raw = fit_predict(X2, y, X2_test, args.seeds)
-        write(args.tag, test_txs, raw, s1_test)
+        write(args.tag, test_txs, raw, s1_test["susp"])
