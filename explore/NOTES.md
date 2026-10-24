@@ -115,3 +115,8 @@ blend with v17.
 `python -m src.cv --modules local,episodes,isolation,patterns,shape` (one seed) gives ALL 59.50 on any fresh
 container. `run.py` / `scripts/realmotif_run.py` report "stage1 ALL 61.23" because they average the out-of-fold
 scores of two seeds before computing AP. Both are reproducible; compare like with like.
+- **v17r result:** out-of-fold stage 1 60.08 (v17 61.23), stage 2 65.21 (v17 67.47), medium 14.1 (v17 17.8). On test
+  its ranking correlates 0.93 with v17; 56 of the top 401 differ, and the ones it brings in come from groups with
+  uneven amounts (median CV 0.87 vs 0.71 for the ones it drops). Leaderboard: TODO. Files: `python -m
+  explore.robust_run --tag v17r --seeds 2`, then `python -m src.blend --out v17_v17r_blend submissions/final.csv
+  submissions/v17r.csv`.
