@@ -91,3 +91,4 @@ Uploaded for LB: pending. Next: more pattern windows (v14).
 - **Update 14:35, best honest candidate: consistent stage 2 without the realmotif model.** Nested holdout: 63.04 vs stage 1 62.57 (pooled 61.09 vs 60.35), the only stage 2 variant that beats stage 1 there. With realmotif it drops to 61.90, regularised 62.09. Honest OOF (2 seeds): stage 1 61.23, stage 2 62.34 (easy 80.8, medium 9.7, hard 1.1).
   Command (about 5 min): `python -m src.stage2 --tag v13c --modules local,episodes,isolation,patterns,shape --sub none --seeds 2 --consistent --predict --testpred folds`
   Suggested LB A/B: v13c against v17. If v13c is not worse, it is the safer final pick.
+- **Update 14:48, nested holdout with 2 seeds:** consistent stage 2 (no realmotif) 63.34 vs stage 1 62.74 mean per-fold, wins 4 of 5 outer folds (pooled 61.52 vs 60.53, easy 81.2 vs 79.7). Rank blend 0.75 v13c + 0.25 stage 1: 63.46 (gain too small to bother).
