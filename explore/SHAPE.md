@@ -40,4 +40,24 @@ local alone, but not against local + episodes.
 Scripts: `explore/shape_cv.py` (3-seed comparison), `explore/shape_auc.py` (per-feature AUC, easy vs look-alikes),
 `explore/shape_fast.py` (same inside fast scenarios only). Labels used only for analysis.
 
-Suggestion for Aby: add `shape` to `MODULES` / the stage 1 module list.
+## Follow-up: on top of Aby's newest features, and shape v4
+
+Base = `local,episodes,isolation,patterns` (after commits 42bbf94 and 7620c9d). Mean of seeds 0, 1, 2.
+
+| Version | Seeds | Mean ALL | easy | medium |
+|---|---|---|---|---|
+| local + episodes + isolation + patterns | 57.52 59.52 56.43 | 57.82 | 76.09 | 8.23 |
+| **same + shape v3** | 59.50 61.47 57.72 | **59.56** | 78.95 | 8.15 |
+| same + shape v4 | 59.23 61.05 58.17 | 59.48 | 78.74 | 8.08 |
+| local + shape v4 (vs v3 60.04) | 60.76 62.63 58.54 | 60.64 | 80.19 | 6.69 |
+
+- Shape v3 still adds **+1.74** on Aby's newest set. It is not redundant with `patterns`: no shape feature has rank
+  correlation above 0.68 with any patterns feature (the closest are sources and sinks share, max in-degree and
+  outside activity at T = 60).
+- Shape v4 added per-payment conservation at T = 60 and 300: what the receiver passes on after this payment (kept
+  fraction, delay, split evenness), what the sender received just before (kept fraction, delay), conservation
+  over the 2-3 hop path, and the sender's split evenness (outgoing sum against incoming sum, CV of amounts).
+  It beats v3 by +0.60 on local alone, but gives nothing on Aby's set (59.48 vs 59.56): `patterns` already covers
+  the path and scatter-gather view. **Dropped; v3 stays.**
+
+Suggestion for Aby: add `shape` (v3, as committed) to the module list of stage 1 and stage 2.

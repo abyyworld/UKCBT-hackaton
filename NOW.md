@@ -15,7 +15,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Medium-case features (slow motifs) | Partner | done, dropped (no gain) | `src/features/medium.py` |
 | Model settings and model blends | Partner | done: rank blend +0.7, see explore/MODELS.md | `explore/models.py`, `explore/MODELS.md` |
 | Slides | Partner | after medium | `report/` |
-| **Easy look-alike separation (motif shape)** | Partner helper 1 | done, kept: +1.11 over local, +1.88 over local+episodes (3 seeds), see SHAPE.md | `src/features/shape.py`, `explore/SHAPE.md` |
+| **Easy look-alike separation (motif shape)** | Partner helper 1 | done, kept v3: +1.11 over local, +1.74 over local+episodes+isolation+patterns (3 seeds); v4 dropped. Add `shape` to modules. See SHAPE.md | `src/features/shape.py`, `explore/SHAPE.md` |
 | **Pseudo-labelling / transductive check** | Partner helper 2 | in progress | `explore/pseudo.py`, `explore/PSEUDO.md` |
 
 ## Current best scores (out-of-fold AP, grouped 5-fold)
