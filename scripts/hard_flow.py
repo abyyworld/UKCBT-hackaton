@@ -78,6 +78,12 @@ def features(txs):
         f[f"r_prein_{name}"] = ri / v1
         ro, roc = out_idx.query(s, t, t + w)         # sender keeps sending after
         f[f"s_postout_{name}"] = ro / v1
+        # causal asymmetry: a real relay hub receives first and forwards later
+        rb, _ = out_idx.query(r, t - w - 1, t - 1)    # receiver sent before this payment
+        sa, _ = in_idx.query(s, t, t + w)             # sender received after this payment
+        f[f"r_fwd_asym_{name}"] = (so - rb) / np.maximum(so + rb, 1e-6)
+        f[f"s_pre_asym_{name}"] = (si - sa) / np.maximum(si + sa, 1e-6)
+        f[f"r_cons_{name}"] = np.minimum(so, v) / np.maximum(so, v1)
     # week-long net balance per wallet up to t (normalised by wallet's total volume)
     allw = np.concatenate([s, r])
     allt = np.concatenate([t, t])
