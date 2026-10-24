@@ -40,6 +40,9 @@ TX_PARAMS = dict(objective="binary", learning_rate=0.03, num_leaves=7, min_child
                  feature_fraction=0.8, bagging_fraction=0.8, bagging_freq=1, lambda_l2=1.0,
                  n_estimators=300, verbose=-1, n_jobs=4)
 TX_SEEDS = 3
+# amount evenness inside a scheme differs between train and test (test schemes are much more uneven),
+# so these features would not transfer; tempo, structure, isolation and value balance stay
+UNEVEN = ["lusd_std", "usd_maxmin", "drift", "keep_med", "keep_min", "keep_max", "a_lusd_dev"]
 T0 = time.time()
 
 
@@ -211,7 +214,7 @@ def scheme_features(t, pairs):
         for c in ("in_k", "out_k", "other", "frac_in"):
             f[f"a{role}_{c}"] = sub[c].to_numpy()
     f["a_lusd_dev"] = np.log1p(t["usd"].to_numpy()[ia]) - g["lusd"].mean()
-    return f.drop(columns=["t0", "t1"])
+    return f.drop(columns=["t0", "t1"] + UNEVEN)
 
 
 def build(name):
