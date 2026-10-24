@@ -110,3 +110,8 @@ would push it down. `explore/robust_run.py` runs v17 unchanged except without th
 (episode usd_std and rel_usd, shape hop ratios and kept_std, local amt_z). Its out-of-fold will be a little lower by
 construction; only the leaderboard can tell whether it transfers better. Suggest one upload of it and one of a rank
 blend with v17.
+
+## Baseline numbers: 59.50 vs 61.23 is not a bug
+`python -m src.cv --modules local,episodes,isolation,patterns,shape` (one seed) gives ALL 59.50 on any fresh
+container. `run.py` / `scripts/realmotif_run.py` report "stage1 ALL 61.23" because they average the out-of-fold
+scores of two seeds before computing AP. Both are reproducible; compare like with like.
