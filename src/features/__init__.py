@@ -2,6 +2,7 @@
 
 Features are cached per split in data/cache/ so modules can be iterated on quickly.
 """
+import hashlib
 import importlib
 import os
 
@@ -18,7 +19,9 @@ def build_split(split, modules=None, refresh=False):
     txs, _ = load_split(split)
     parts = []
     for name in modules:
-        path = f"{CACHE}/{split}_{name}.parquet"
+        src = open(os.path.join(os.path.dirname(__file__), f"{name}.py"), "rb").read()
+        version = hashlib.md5(src).hexdigest()[:8]  # cache refreshes whenever the module code changes
+        path = f"{CACHE}/{split}_{name}_{version}.parquet"
         if os.path.exists(path) and not refresh:
             part = pd.read_parquet(path)
         else:

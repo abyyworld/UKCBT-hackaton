@@ -135,6 +135,17 @@ def build(txs):
         f[f"novel_r_{W}"] = b - new
         f[f"novel_both_{W}"] = a + b - 2 * new
 
+    # one actor controls the wallets of a planted scheme, so they do nothing else meanwhile: count the wallets'
+    # recurring-relationship payments (pairs seen more than once) around this payment
+    rec = pair_n >= 2
+    rec_ev = _events(np.r_[s[rec], r[rec]], np.r_[t[rec], t[rec]])
+    for W in (300, 900, 1800, 3600, 7200):
+        a = _window_counts(rec_ev, s, t, W, W) - rec
+        b = _window_counts(rec_ev, r, t, W, W) - rec
+        f[f"recur_s_{W}"], f[f"recur_r_{W}"], f[f"recur_both_{W}"] = a, b, a + b
+        allc = f[f"both_any_{W}"] if f"both_any_{W}" in f else _window_counts(any_ev, s, t, W, W) + _window_counts(any_ev, r, t, W, W) - 2
+        f[f"recur_frac_{W}"] = (a + b) / np.maximum(allc, 1)
+
     # how each wallet usually behaves over the week
     s_out_n = pd.Series(s).map(pd.Series(s).value_counts()).to_numpy()
     r_in_n = pd.Series(r).map(pd.Series(r).value_counts()).to_numpy()
