@@ -78,3 +78,13 @@ See `explore/PSEUDO.md`. Best setting looked like +1.16 ALL on seeds 0 to 2 (loc
 `scripts/make_zip.sh` currently packs `src run.py requirements.txt README.md SUBMISSION.md LICENSE ATTRIBUTION.md
 TEAM_RULES.md scripts`. The rules also want the slides or report, team details and the predictions with validation
 results. Suggest adding `report TEAM.md explore/*.md` and `submissions/final.csv` (3 MB, fits the 8 MiB limit).
+
+## Group-level classifier (for the scheme-model session; no gain as a blend)
+`explore/groups.py`: first-time-pair payments linked through a shared wallet within T, one row per group (size,
+span, gaps, assets in and out, conversion and XRP share, amounts, wallet busyness, value kept through pass-through
+wallets, end-to-end conservation, max in and out degree). With T = 300 s each easy suspicious scenario lands in one
+group (93% of its payments, 95% pure); slower look-alikes split into small pieces. Group label = majority label,
+folds grouped by scenario. Group AUC 0.72 overall, **0.97 for groups of 3 or more payments**. But blending the group
+score into v13 out-of-fold (sum, product, rank mix) never beats v13 (best 63.40 vs 63.81): the stage 1 and stage 2
+features already carry the same information. Headroom check on v13 out-of-fold: pushing the normal look-alike
+scenario payments (about 1,000 rows) to the bottom would lift AP from 63.8 to 78.6; perfect medium alone to 76.9.
