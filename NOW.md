@@ -74,4 +74,7 @@ OOF stage 1 61.23, stage 2 63.81 (easy 79.2, medium 10.0, hard 2.1). `python run
 Uploaded for LB: pending. Next: more pattern windows (v14).
 
 ## Idea queue (partner writes one line each, Aby's side runs them)
+- Final upload as a rank blend of the three best honest LB runs (v17 69.2, v17r 69.0, v16 68.6): every blend so far beat or matched its parts, and v17/v17r differ on 56 of the top 401.
+- Final run with 5 seeds instead of 2 for stage 1 and the real-vs-look-alike model: lower prediction variance, typically +0.2 to +0.5, costs only run time.
+- Feed `slow` closure (clo14400) into stage 2 as a collective input (mean over linked payments) instead of a plain feature: it fires on 39% of medium vs 1.8% of normal but trees do not use it at stage 1.
 
