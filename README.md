@@ -16,16 +16,16 @@ its `README.md` takes precedence over this brief.
 
 | Time | Activity |
 |---|---|
-| 09:30–10:00 | Arrival, check-in and meeting teammates |
-| 10:00–10:30 | Welcome, challenge briefing and questions |
-| 10:30–16:30 | Hacking, with technical support available |
+| 09:30-10:00 | Arrival, check-in and meeting teammates |
+| 10:00-10:30 | Welcome, challenge briefing and questions |
+| 10:30-16:30 | Hacking, with technical support available |
 | Around 13:00 | Working lunch |
 | **16:30** | **All submissions close** |
 | After 16:30 | Initial submission checks and verification, winners announcement and prizes, networking and drinks |
 
 **Teams and participation**
 
-- Compete individually or in a team of 1–5 people. Each person can belong to only one team.
+- Compete individually or in a team of 1-5 people. Each person can belong to only one team.
 - Every participant must be a student aged 18 or over.
 - Every participant must have accepted the Luma registration, confirmed their competition registration, personally
   accepted the T&Cs and attended the mandatory online training.
@@ -272,9 +272,9 @@ worth almost nothing.
 
 Full rules: <https://hackathon.ukcbt.org/terms/2026-10-21>
 
-> **Which data counts (settled on the day).** The XRPL Commons deck (pp. 10, 29–35, 44–49) describes the
+> **Which data counts (settled on the day).** The XRPL Commons deck (pp. 10, 29-35, 44-49) describes the
 > challenge as pulling your own real Mainnet data, with no labels, and ranking accounts with Isolation Forest.
-> The organisers' day-of briefing (slides 8–9) confirms the Decode & Detect version instead: the **supplied
+> The organisers' day-of briefing (slides 8-9) confirms the Decode & Detect version instead: the **supplied
 > labelled synthetic dataset**, one score per test transaction, and no outside transaction data without approval.
 > We use the Mainnet exercises only to learn the XRPL data model.
 
@@ -319,8 +319,8 @@ a method works on real financial crime.
 
 ## Training materials
 
-- [`briefing/`](briefing/): the welcome slides from the day (slides 2–6), covering the welcome, the hosts and partners,
-  the agenda, teams and participation, and the mentors. Slides 7–16 (practical information, the challenge, the data,
+- [`briefing/`](briefing/): the welcome slides from the day (slides 2-6), covering the welcome, the hosts and partners,
+  the agenda, teams and participation, and the mentors. Slides 7-16 (practical information, the challenge, the data,
   building your solution, scoring, the prediction file, the final submission, how to submit, the rules, and prizes and
   verification) are summarised in this README.
 - [`training/Decode_and_Detect_AML_Training.pptx`](training/Decode_and_Detect_AML_Training.pptx): *Decode & Detect*,

@@ -29,7 +29,7 @@
 | 15:30 | Final predictions submitted |
 | 16:15 | ZIP and slides uploaded (15-minute buffer) |
 
-## Git
+## Git (full rules in TEAM_RULES.md, read it first)
 Everyone works on `main`. Pull before you push. Never commit `data/`, access codes or credentials.
 
 ## Leaderboard log
