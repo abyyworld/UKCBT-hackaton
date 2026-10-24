@@ -42,21 +42,33 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 
 ---
 
-## 4. Features
+## 4. Features (five groups, all computed inside one week, no labels)
 
-- Local: amounts in USD, conversions, number of legs, sender and receiver activity in several time windows.
-- Flow: pass-through time, share of value kept, fan-in and fan-out counts.
-- Relay hubs: burst size and duration, sender recurrence across bursts, in/out balance. TODO: keep only if it helped.
-- TODO: top 10 features by importance.
+- **Local:** amount in USD, conversions, legs, how busy sender and receiver are over windows from 2 minutes to a
+  day, and whether this is the first payment between the two wallets.
+- **Episodes:** payments linked through a shared wallet within a short time form an episode; its size, span, step
+  gaps and amounts describe the whole motif, not one payment. Tight scales for fast motifs, wider scales (first-time
+  pairs only) for slow ones.
+- **Scheme isolation:** one actor controls a scheme's wallets, so during the scheme they make no other payments.
+  Normal look-alike wallets keep their regular relationships going.
+- **Patterns among first-time pairs:** cycles back to the sender, how far money travels, parallel two-hop
+  scatter-gather paths, and dense blocks of new pairs, over 2 and 6 hours (the slow medium schemes).
+- **Motif shape:** inside each group, how much value pass-through wallets keep, how regular the hop delays are,
+  how amounts change hop to hop. Laundering passes money on almost whole (98 to 100%).
 
 ---
 
 ## 5. Model and validation
 
-- LightGBM gradient-boosted trees.
-- Grouped 5-fold cross-validation: every planted scenario stays inside one fold, so the score is not leaked.
-- Robustness: a train-vs-test classifier to spot features that shift between splits. TODO: AUC and what we dropped.
-- No labels, scenario IDs or split names used as features.
+- **Stage 1:** LightGBM on all features, averaged over 2 seeds.
+- **Stage 2, collective scoring:** each payment also gets the stage 1 scores of the payments linked to it (same
+  episode, same wallets nearby in time), and a second model learns from those. Missing steps of a scheme get pulled
+  up by the rest of it.
+- **Validation:** grouped 5-fold out-of-fold AP. Every planted scenario stays inside one fold, so a model never
+  sees part of a scheme it is scored on. Single-seed results move by about 3 points, so we only kept ideas that
+  helped on several seeds.
+- **Robustness:** no single feature shifts between train and test (largest single-feature AUC 0.55).
+- No labels, scenario IDs, families, difficulty or split names are used as features.
 
 ---
 
