@@ -22,9 +22,9 @@ idea had to beat the noise on several seeds. Many good-sounding ideas did not, a
 
 ## Slide 4, flagged example (1:30 to 2:05)
 "Here is our rank-one transaction. One wallet splits about 127 dollars across six brand-new wallets in under two
-minutes, and all six pay the same collector within the next two. Our rank-four case does the same but converts
+minutes, and all six pay the same collector within the next two. Our rank-sixteen case does the same but converts
 each branch into euros or pounds and back, keeping 98 to 100 percent of the value. And when the collector later
-pays an old contact, that payment ranks 17,000th: we score the motif, not the wallet."
+pays an old contact, that payment ranks around 36060th: we score the motif, not the wallet."
 
 ## Slide 5, the hub we leave alone (2:05 to 2:30)
 "This is the busiest wallet in the data: 316 payments, 247 counterparties. Any volume rule would flag it. We

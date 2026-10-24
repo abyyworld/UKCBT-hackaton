@@ -105,14 +105,14 @@ Details and full hashes in `report/EXAMPLES.md`.
 
 - **Rank 1, `5736BA1F…`:** one wallet splits about $127 across six new wallets in 1.7 minutes; all six pay one
   collector within the next 2 minutes. Twelve payments, all new pairs.
-- **Rank 4, `8AA1DCA1…`:** the same split and merge, but each branch converts USD into EUR or GBP and back to USD.
+- **Rank 16, `8AA1DCA1…`:** the same split and merge, but each branch converts USD into EUR or GBP and back to USD.
   98% to 100% of the value survives each hop, all within 10 minutes.
-- **Rank 5, `41EF2ECA…`:** split into four new wallets with four different assets, merged in GBP within 2 minutes.
-  The collector's next payment, to a counterparty it already knew, ranks 17,189: we score the motif, not the wallet.
+- **Rank 93, `41EF2ECA…`:** split into four new wallets with four different assets, merged in GBP within 2 minutes.
+  The collector's next payment, to a counterparty it already knew, ranks 36060: we score the motif, not the wallet.
 
 **Look-alike we leave alone:** `rnpfKt4h…`, the busiest wallet in the test week (316 payments, 247
 counterparties, active every day). Extreme fan-in and fan-out, but a steady 20-minute business pace and no
-pass-through: none of its payments reach our top 1% (best rank 1,975).
+pass-through: none of its payments reach our top 1% (best rank 1,204).
 
 ---
 

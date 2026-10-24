@@ -178,10 +178,10 @@ for (let i = 0; i < 6; i++) {
 }
 s.addText("Rank 1 of 40,101   5736BA1F...\n$127 split across 6 new wallets in 1.7 min; all 6 pay one collector within 2 min",
   { x: 0.5, y: 4.55, w: 4.2, h: 0.6, fontSize: 12, color: C.text2, isTextBox: true, margin: 0, valign: "top" });
-card(s, 4.95, 1.25, 4.55, 1.5, "Rank 4   8AA1DCA1...",
+card(s, 4.95, 1.25, 4.55, 1.5, "Rank 16   8AA1DCA1...",
   "Same split and merge, but every branch converts USD into EUR or GBP and back. 98 to 100% of the value survives each hop, all within 10 minutes.");
-card(s, 4.95, 2.95, 4.55, 1.5, "Rank 5   41EF2ECA...",
-  "Four new wallets, four assets, merged in GBP in 2 minutes. The collector's next payment, to an old contact, ranks 17,189: we score the motif, not the wallet.");
+card(s, 4.95, 2.95, 4.55, 1.5, "Rank 93   41EF2ECA...",
+  "Four new wallets, four assets, merged in GBP in 2 minutes. The collector's next payment, to an old contact, ranks 36060: we score the motif, not the wallet.");
 s.addText("Full hashes in report/EXAMPLES.md. A high score means flagged for review, not proof of wrongdoing.",
   { x: 4.95, y: 4.6, w: 4.55, h: 0.5, fontSize: 11, color: C.accent4, isTextBox: true, margin: 0, valign: "top" });
 s.addNotes("Our top case is a textbook scatter-gather: one wallet splits about 127 dollars across six brand-new wallets in under two minutes, and all six pay the same collector within the next two. The third example shows the model ignores the collector's ordinary follow-on payment.");
@@ -192,7 +192,7 @@ s.addText("The busiest wallet, deliberately not flagged", { placeholder: "title"
 stat(s, 0.5, 1.3, 2.1, "316", "payments in the test week");
 stat(s, 2.75, 1.3, 2.1, "247", "different counterparties, 88% of them new");
 stat(s, 5.0, 1.3, 2.1, "7 of 7", "days active, a steady 20 minutes apart");
-stat(s, 7.25, 1.3, 2.25, "1,975", "its best rank; none of its payments in our top 1%", C.accent1);
+stat(s, 7.25, 1.3, 2.25, "1,204", "its best rank; none of its payments in our top 1%", C.accent1);
 card(s, 0.5, 3.2, 9.0, 1.7, "Why we leave it alone   rnpfKt4h...",
   "By raw fan-in and fan-out it is the most extreme wallet in the data: exactly the exchange or payroll hub the brief warns about. But its new pairs arrive at a steady business pace, money is not passed straight on, and its counterparties do not form closed groups. Volume is not evidence.");
 s.addNotes("Hubs look anomalous by any count. We want the model to score behaviour, not size: steady tempo, no pass-through and open, unrelated counterparties are what normal businesses look like.");
