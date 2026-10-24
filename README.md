@@ -1,16 +1,64 @@
 # UKCBT × XRPL AI Hack: Decode & Detect
 
-Hackathon: **24 October 2026**, IDEALondon, 69 Wilson Street, from 09:30.
-Teams of up to 5, or solo. Prize pool: £10,000 (£5,000 for 1st, £3,500 for 2nd, £1,500 for 3rd).
-**Submission deadline: 16:30 London time.**
+Hackathon: **24 October 2026**, IDEALondon, 69 Wilson Street. *Build a detection algorithm. Test your approach.*
+Prize pool: £10,000 (£5,000 for 1st, £3,500 for 2nd, £1,500 for 3rd), awarded per team, including solo entries.
+**All submissions close at 16:30 London time.**
 
-This brief is based on the two training decks in [`training/`](training/) and on the
-pre-hackathon training session held on 23 October 2026. When the data package arrives,
+Hosted by the UK Centre for Blockchain Technologies (UK CBT), in partnership with Ripple, the UCL Centre for
+Blockchain Technologies, XRPL Commons, the Imperial College London Data Science Society, the King's College London
+Blockchain Society and GirlsWhoML.
+
+This brief draws on three sources: the two training decks in [`training/`](training/), the pre-hackathon training session
+on 23 October 2026, and the welcome slides from the day in [`briefing/`](briefing/). When the data package arrives,
 its `README.md` takes precedence over this brief.
+
+## On the day
+
+| Time | Activity |
+|---|---|
+| 09:30–10:00 | Arrival, check-in and meeting teammates |
+| 10:00–10:30 | Welcome, challenge briefing and questions |
+| 10:30–16:30 | Hacking, with technical support available |
+| Around 13:00 | Working lunch |
+| **16:30** | **All submissions close** |
+| After 16:30 | Initial submission checks and verification, winners announcement and prizes, networking and drinks |
+
+**Teams and participation**
+
+- Compete individually or in a team of 1–5 people. Each person can belong to only one team.
+- Every participant must be a student aged 18 or over.
+- Every participant must have accepted the Luma registration, confirmed their competition registration, personally
+  accepted the T&Cs and attended the mandatory online training.
+- **Only eligible participants who are physically present at the venue can compete.** Check-in must be complete by **10:30**.
+- Confirm the final team name, captain and members with the organisers.
+- Each final team, including solo competitors, receives a **unique submission code**, which is needed to upload.
+- If you're still looking for teammates, speak to Narmin Rahimli.
+
+**Mentors:** for questions about the rules, the data, the submission process or anything else, speak to Jiahua Xu,
+Walter Hernandez, Chantelle Obatolu, Narmin Rahimli or Alyssa Sorzano. Additional online help may also be available.
+
+**Practical information**
+
+- **Wi-Fi:** use Eduroam, or create an account on the Sky WiFi page with any email address and a password of your
+  choice. The same login works on all your devices.
+- **Technical help:** Alyssa Sorzano. **Event and team-registration help:** Narmin Rahimli.
+- **Lunch:** served to the tables around 13:00.
+- **Toilets:** unisex, downstairs, past the Event Space ("The Hub") and behind the second 4-person glass meeting
+  room, labelled "Sandy".
+- **Fire exits:** marked with the green symbol. The nearest are the main IDEALondon entrance by the café and one in
+  the Event Space/Hub, near the screen on the left. If the alarm sounds, follow the main exit to the main building
+  reception until you are out of the building. No fire drills are scheduled this month.
+- **Photography and filming** will take place. Speak to an organiser if you have a concern or objection.
 
 ## What we have to build
 
-We need a **Kaggle-style anti-money-laundering (AML) model**. Given a synthetic ledger in the real
+> **Official brief (day-of slide 8):** Develop an algorithm that identifies suspicious payment patterns in our
+> fictional blockchain dataset. Use transaction details, account relationships, timing and currency conversions to
+> identify patterns associated with **simulated money laundering**, while limiting false positives. Assign every
+> transaction in the supplied test dataset a **suspicion score between 0 and 1**. **Higher scores should indicate
+> greater suspicion.** Predictions are evaluated against test labels held privately by the organisers.
+
+In short, we need a **Kaggle-style anti-money-laundering (AML) model**. Given a synthetic ledger in the real
 XRP Ledger (AWS/SonarX) format, it gives **every test transaction a suspicion score**. The job is to rank the
 laundering transactions above the normal ones.
 
@@ -21,28 +69,78 @@ laundering transactions above the normal ones.
 - The model sits in the "monitor payments" step of the AML pipeline. It should put the real cases
   at the top of an analyst's review queue, and that is exactly what the metric measures.
 
-## Deliverables
+## Submission
 
-Upload two files at **hackathon.ukcbt.org** using the organiser access code.
+Upload a **predictions CSV and a code ZIP together by 16:30 London time on 24 October 2026**.
+**A predictions CSV alone is not a complete final submission.**
 
-| File | Contents | Limits |
-|---|---|---|
-| **Predictions CSV** | Header `TRANSACTION_HASH,score`, all **40,101** test transactions exactly once each, scores between 0 and 1 | ≤ 12 MiB |
-| **Code ZIP** | Code, exact run command, seeds, dependencies, team list, commit or version, results, and a method write-up (under 10 slides or 4 pages) | ≤ 8 MiB, no secrets, no installed packages |
+### Predictions CSV (≤ 12 MiB)
 
-- Each team gets 50 uploads per UTC day. The live leaderboard shows the team's best completed run and stays
-  provisional until the organisers verify it.
-- Pitch length will be confirmed on the day.
+One row for each of the **40,101** test transactions, with exactly these columns (download the template from the portal):
+
+- `TRANSACTION_HASH`: the transaction identifier from the supplied test data.
+- `score`: a numeric suspicion score between 0 and 1. Higher means more suspicious.
+
+Check before uploading:
+
+- Every test transaction appears exactly once, with no missing, duplicate or extra transaction IDs.
+- Every score is finite and between 0 and 1, and uses the full range (such as 0.82 or 0.07) rather than only 0 and 1.
+- The column names and format exactly match the template.
+- There is one prediction per **transaction**, even where a transaction contains several transfers.
+
+### Code ZIP (≤ 8 MiB)
+
+- **Predictions and results:** the test predictions CSV and the relevant validation results.
+- **Code or notebook:** the code needed to generate the predictions.
+- **Model and/or prompt set:** the relevant model details, prompts and settings, with model files or access
+  instructions where applicable.
+- **Run instructions:** the steps, dependencies, computing requirements and external services needed to reproduce
+  the results, including the exact run command and seeds.
+- **Slides or written report:** fewer than 10 slides, or a report of up to 4 pages in a legible font. It should cover
+  the methodology, features, model or prompts, validation approach, results, interesting findings and limitations.
+- **Team details:** team name, captain, final member list, and version or commit.
+- **No access codes, credentials or secrets**, and no installed packages.
+
+### How to submit
+
+Use the submission portal at <https://hackathon.ukcbt.org/>.
+
+1. Open the submission portal.
+2. Sign in with the organiser-issued access code (the team's unique submission code) and download the data.
+3. Upload the code ZIP and the predictions CSV together.
+4. Check that the portal accepts the files and returns a score.
+5. Review the score and the leaderboard. We can update the predictions before the deadline, with up to 50 uploads per UTC day.
+6. Complete the supporting-material submission by following the portal instructions.
+
+**Everything must be submitted by 16:30.** Submit early enough to fix any errors, and if something goes wrong,
+contact Narmin Rahimli promptly. Pitch length will be confirmed on the day.
 
 ## Scoring
 
 **Score = 100 × Average Precision (AP)** against private organiser labels on all 40,101 test transactions.
+AP rewards ranking suspicious transactions ahead of legitimate ones across the whole test file, so a higher score is better.
+
+Worked example: 5 transactions, 2 suspicious, ranked at positions 1 and 3. AP = (1/1 + 2/3) / 2 = 0.83, so the score is 83.
 
 - **Only the order counts.** The scores don't need to be calibrated probabilities.
 - **Avoid ties.** Equal scores are grouped into one block, so use continuous scores rather than 0/1 labels.
-- Also shown, but not used for ranking: precision and recall in the top 1% (402 transactions), and ROC-AUC.
+- **Diagnostics only:** ROC-AUC, and precision, recall and F1 in the top 1% (402 transactions). None of these
+  count towards the score.
+- The leaderboard shows the team's best completed score. Positions stay provisional until verification is
+  complete, and final prize-entry selection needs organiser confirmation.
+- **Winners:** the top three eligible, complete and verified entries by test score, with sufficient documentation
+  and completed eligibility checks. If there is a tie between entries, the organisers will choose a fair resolution.
 
-Worked example: 5 transactions, 2 suspicious, ranked at positions 1 and 3. AP = (1/1 + 2/3) / 2 = 0.83, so the score is 83.
+**Prizes and verification**
+
+Provisional awards are announced on the evening of 24 October, after submissions close at 16:30. Before confirming them, the organisers check:
+
+- participant and team eligibility;
+- that all required submission materials are complete;
+- compliance with the competition rules;
+- whether they can reproduce the submitted predictions and results.
+
+Rankings and awards stay provisional until these checks are complete. The final winners are announced within 14 days.
 
 ## The data
 
@@ -62,6 +160,10 @@ Worked example: 5 transactions, 2 suspicious, ranked at positions 1 and 3. AP = 
 
 The package also includes `payments.py`, which builds one edge per payment (who paid whom, how much in USD, and when),
 and `baseline.py`, which produces a valid submission and a score to beat.
+
+A transaction may contain several transfer records, but we **submit one prediction per transaction**.
+Data and documentation are at <https://hackathon.ukcbt.org/>. The activity is fictional: performance on this challenge
+says nothing about performance on real financial crime or the real XRP Ledger.
 
 ### Six traps for the first hour
 
@@ -139,23 +241,51 @@ worth almost nothing.
 
 ## Rules
 
-- **Organiser data only.** Outside transaction or reference data needs approval; public docs and papers are fine.
-- **Any tools.** Any language or model is allowed: rules, statistics, trees, neural nets or graph methods.
-- **AI is allowed but must be disclosed.** Name the model and provider, and include the prompts and settings.
-- **Built on the day.** Libraries and pre-trained models are fine, but the work being judged must be done during the hackathon.
-- **Reproducible.** Give the exact run command, seeds and dependencies. A run the organisers can't reproduce may be retracted.
-- **Open source.** Release the code under an approved licence by the deadline. Every team member accepts the terms.
+**Data and tools**
 
-Full terms: hackathon.ukcbt.org/terms
+- Use the supplied training and test files. Public documentation, research and reference data may support the work.
+  (The pre-hackathon training said outside transaction or reference data needs approval, so check the full terms
+  before using any.)
+- **Disclose** any external data sources, APIs, models and services.
+- Any programming language, framework or model type is allowed: rules, statistical methods, machine learning,
+  graph algorithms or LLM-based approaches.
+- AI coding assistants, existing libraries and pre-trained models are allowed. Identify the pre-existing components
+  and explain what the team developed. The work being judged must be done during the hackathon.
+- For any LLM use, disclose the model and provider, the relevant prompts and settings, and any reproducibility limitations.
 
-> **The two decks disagree about the data.** The XRPL Commons deck (pp. 10, 29–35, 44–49) describes the
+**Fair participation**
+
+- Do not access the private test labels, organiser-only files or other teams' private work.
+- Do not fabricate results. Preserve third-party licences and attribution.
+- Do not present synthetic results as evidence of wrongdoing by real people or accounts.
+
+**Our work**
+
+- The team keeps ownership, but the original submission materials must be released under an **approved open-source
+  licence that permits commercial reuse**, whether or not the entry wins. Every team member accepts the terms.
+- The team must understand its own solution, and the organisers must be able to reproduce the predictions. A run
+  they can't reproduce may be retracted.
+
+Full rules: <https://hackathon.ukcbt.org/terms/2026-10-21>
+
+> **Which data counts (settled on the day).** The XRPL Commons deck (pp. 10, 29–35, 44–49) describes the
 > challenge as pulling your own real Mainnet data, with no labels, and ranking accounts with Isolation Forest.
-> The Decode & Detect deck (slides 21–26) sets out the scored challenge: the organiser's **labelled synthetic
-> dataset**, one score per transaction, and no outside transaction data without approval. We follow
-> Decode & Detect, and use the Mainnet exercises only to learn the XRPL data model. Confirm this with the
-> organisers or the data package README on the day.
+> The organisers' day-of briefing (slides 8–9) confirms the Decode & Detect version instead: the **supplied
+> labelled synthetic dataset**, one score per test transaction, and no outside transaction data without approval.
+> We use the Mainnet exercises only to learn the XRPL data model.
 
 ## Plan for the day
+
+**Before we start:**
+
+- [ ] Confirm the team (name, captain and members) and collect the submission code.
+- [ ] Open the data, the documentation and the submission template.
+- [ ] Check that we can access the submission portal.
+- [ ] Choose the open-source licence (one that permits commercial reuse) and add a `LICENSE` file.
+- [ ] Make a plan for development, validation and the final submission.
+
+The organisers suggest this workflow: explore the supplied data, develop features, build an approach, validate on a
+held-out part of the labelled training data, then generate a score for every test transaction. Our steps:
 
 1. **Load and join** transactions, transfers and rates, and check the row counts.
 2. **Build one edge per payment** (who paid whom, how much in USD, and when) using `payments.py`.
@@ -185,6 +315,10 @@ a method works on real financial crime.
 
 ## Training materials
 
+- [`briefing/`](briefing/): the welcome slides from the day (slides 2–6), covering the welcome, the hosts and partners,
+  the agenda, teams and participation, and the mentors. Slides 7–16 (practical information, the challenge, the data,
+  building your solution, scoring, the prediction file, the final submission, how to submit, the rules, and prizes and
+  verification) are summarised in this README.
 - [`training/Decode_and_Detect_AML_Training.pptx`](training/Decode_and_Detect_AML_Training.pptx): *Decode & Detect*,
   the AML and challenge training by Muhamed Retkoceri. It covers the patterns, the data, scoring and the rules.
 - [`training/XRPL_AI_Hack_Training_UKCBT_October_2026.pdf`](training/XRPL_AI_Hack_Training_UKCBT_October_2026.pdf):
