@@ -29,6 +29,8 @@ Computed on the true scheme groups (rank of the suspicious copy within its cohor
 
 In words: a suspicious hub only forwards money it has just received, within a few hours, and keeps a steady share
 of each batch. A normal relay hub often pays out more than its scheme brought in and waits a day or more.
+Caveat: test laundering amounts look deliberately uneven (see NOTES.md), so do not rely on the steady share
+(std of out/in) signal. Cover and gap are flow-balance and timing signals and should be safer.
 Filter "cover below 0.85" keeps all 12 suspicious schemes and removes 60% of normal ones (about 2.5 times lift).
 
 ## Why it did not transfer to payments
