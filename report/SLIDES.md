@@ -25,10 +25,20 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 
 ## 3. What makes laundering visible here
 
-- **Tempo:** money leaves soon after it arrives.
-- **First-time pairs:** payments between wallets that have never dealt with each other.
-- **Episodes:** bursts of related payments, repeated across several days with the same small set of senders.
-- TODO: one chart (for example, time from receive to forward, suspicious vs normal).
+- **First-time pairs:** almost every step of a planted motif (98%) is the first payment between those two wallets.
+  But so are 55% of normal payments, so novelty alone is not enough.
+- **Tempo is the main signal.** Typical time between steps inside a scenario (train, median):
+
+| | Easy suspicious | Normal look-alike | Medium suspicious |
+|---|---|---|---|
+| Gap between steps | about 1 min | about 10 min | about 18 min |
+| Whole motif | about 5 min | about 60 min | about 110 min |
+
+- Normal look-alikes (marketplaces, payroll, treasury) build the same shapes but at a business pace. Easy laundering
+  is much faster; medium laundering is deliberately slower. So the useful signal is "unusual tempo for this shape",
+  not simply "fast".
+- Everything else (amount, conversions, asset, fees, hour, wallet age) is almost identical between suspicious and
+  look-alike scenarios.
 
 ---
 
@@ -74,7 +84,11 @@ looks normal (steady, many unrelated customers, no quick pass-through).
 ## 8. Limits and next steps
 
 - The data is synthetic. A high score here proves nothing about real financial crime.
-- About 25 hard labels are deliberately random, so no model can find them.
+- **Hard relay cases are out of reach.** 200 suspicious relay transactions sit among 19,800 normal ones built from
+  the same template. We tested about 15 signals (sender recurrence, burst overlap, onward chains, repeated paths,
+  amount trends, timing, assets) at transaction and whole-scenario level: none beat AUC 0.57. Their wallets are
+  ordinary wallets (about 92% of each one's activity is normal).
+- 25 more hard labels are random by design. Together this caps any honest model at roughly AP 82.
 - The test set has variations absent from training. TODO: what we did about it.
 - Next: more labels for the hard cases, longer history than one week, account-level models.
 
