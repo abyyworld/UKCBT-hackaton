@@ -20,7 +20,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Model settings and model blends | Partner | done: rank blend +0.7, see explore/MODELS.md | `explore/models.py`, `explore/MODELS.md` |
 | Slides | Partner | after medium | `report/` |
 | **Easy look-alike separation (motif shape)** | Partner helper 1 | done, kept v3: +1.11 over local, +1.74 over local+episodes+isolation+patterns (3 seeds); v4 dropped. Add `shape` to modules. See SHAPE.md | `src/features/shape.py`, `explore/SHAPE.md` |
-| **Medium slow motifs (helper 1)** | Partner helper 1 | done, kept v2 closure: +0.55 ALL over local,episodes,isolation,patterns,shape (3 seeds), medium flat about 8. Add `slow` to modules. See SLOW.md | `src/features/slow.py`, `explore/SLOW.md` |
+| **Medium slow motifs (helper 1)** | Partner helper 1 | done, kept v2 closure. `python -m src.cv` seed 0 here: base 59.50 (medium 8.44), +slow 60.30 (medium 7.55), +0.80 ALL. 3 seeds: +0.55 ALL, medium flat about 8. Add `slow` to modules. See SLOW.md | `src/features/slow.py`, `explore/SLOW.md` |
 | **Pseudo-labelling / transductive check** | Partner helper 2 | done, dropped (+0.03 on fresh seeds) | `explore/pseudo.py`, `explore/PSEUDO.md` |
 | **Medium wallet reuse (helper 2)** | Partner helper 2 | done, dropped (lean +0.33 ALL, +0.27 medium over 5 seeds), see REUSE.md | `src/features/reuse.py`, `explore/REUSE.md` |
 | **Medium value matching (helper 3)** | Partner helper 3 | in progress | `src/features/match.py`, `explore/MATCH.md` |
