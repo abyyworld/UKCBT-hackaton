@@ -21,7 +21,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Task | Owner | Status | Files |
 |---|---|---|---|
 | Local, episode and fingerprint features | Aby | done | `src/features/local.py`, `episodes.py`, `fingerprint.py` |
-| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress. **Nested holdout warning:** outer grouped 5-fold acting as a fake test set, v17 pipeline (local,episodes,isolation,patterns,shape + realmotif, 2 seeds) run inside each outer fold: stage 2 mean per-fold AP 61.00 vs stage 1 alone 62.72 (pooled 57.75 vs 60.87). Test scoring from fold models (`--testpred folds`) is no better (60.99). Likely cause: normal payments on planted wallets are in other folds, so their OOF stage-1 scores leaked the planted labels, and stage 2 learns to trust leaked neighbour scores. Fix in test: `--consistent` (each row's neighbours scored by the fold model that never saw its fold). Suggest keeping one pure stage 1 upload on the v13 modules as a check | `src/stage2.py` |
+| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress, see `## Stage 2 second session` below | `src/stage2.py` |
 | Hard relay cases hunter | Aby, hunter session 1 | in progress, report by 14:45 | `src/features/hardrelay.py`, `explore/HARD.md` |
 | Normal hub down-ranking (to lift medium) | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/hubs.py`, `explore/MEDIUM2.md` |
 | Alternative method: whole-scheme classifier (rebuild schemes, score each scheme, map to payments) | Aby, alt session | in progress, due 14:40 | `scripts/scheme_model.py` |
@@ -79,3 +79,12 @@ Uploaded for LB: pending. Next: more pattern windows (v14).
 - Final run with 5 seeds instead of 2 for stage 1 and the real-vs-look-alike model: lower prediction variance, typically +0.2 to +0.5, costs only run time.
 - Feed `slow` closure (clo14400) into stage 2 as a collective input (mean over linked payments) instead of a plain feature: it fires on 39% of medium vs 1.8% of normal but trees do not use it at stage 1.
 
+
+## Stage 2 second session (nested holdout and leak fix)
+- Nested holdout (outer grouped 5-fold as a fake test set, whole pipeline inside each outer fold), v13 modules + realmotif:
+  leaky v17 stage 2 61.00 (2 seeds), fold-consistent stage 2 61.90 (1 seed), pure stage 1 62.57 to 62.72. Rank blend 0.25 consistent + 0.75 stage 1: 62.90.
+- Leak: normal payments on planted wallets sit in other folds, so their OOF stage-1 scores come from models that saw the planted labels. `--consistent` scores each row's neighbours with the fold model that never saw its fold. Honest OOF: stage 1 61.23, stage 2 63.49 (easy 81.8, medium 13.0, hard 0.9). v17's 67.47 OOF is inflated by this leak, which matches the shrinking OOF to LB gap.
+- LB candidates (main session uploads), each writes `submissions/<tag>.csv`:
+  1. `python -m src.stage2 --tag v17c --modules local,episodes,isolation,patterns,shape --sub realmotif --seeds 2 --consistent --predict --testpred folds` (about 6 min)
+  2. pure stage 1 on v13 modules as a check: `python -m src.predict --tag s1v13 --modules local,episodes,isolation,patterns,shape --seeds 2`
+  3. rank blend 0.25 v17c + 0.75 s1v13 (best on the nested holdout).
