@@ -22,7 +22,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | **Easy look-alike separation (motif shape)** | Partner helper 1 | done, kept v3: +1.11 over local, +1.74 over local+episodes+isolation+patterns (3 seeds); v4 dropped. Add `shape` to modules. See SHAPE.md | `src/features/shape.py`, `explore/SHAPE.md` |
 | **Medium slow motifs (helper 1)** | Partner helper 1 | in progress | `src/features/slow.py`, `explore/SLOW.md` |
 | **Pseudo-labelling / transductive check** | Partner helper 2 | done, dropped (+0.03 on fresh seeds) | `explore/pseudo.py`, `explore/PSEUDO.md` |
-| **Medium wallet reuse (helper 2)** | Partner helper 2 | in progress, push by 13:30 UTC | `src/features/reuse.py`, `explore/REUSE.md` |
+| **Medium wallet reuse (helper 2)** | Partner helper 2 | done, dropped (lean +0.33 ALL, +0.27 medium over 5 seeds), see REUSE.md | `src/features/reuse.py`, `explore/REUSE.md` |
 | **Medium value matching (helper 3)** | Partner helper 3 | in progress | `src/features/match.py`, `explore/MATCH.md` |
 | Hard relay signal hunt (pass-through, cover, gap) | Partner helper 3 | done, dropped: ALL 60.01 vs 61.23, hard 0.92 vs 0.89 (seed 0). Scheme-level signal is real but needs scheme reconstruction, see HARD.md | `explore/HARD.md` |
 
