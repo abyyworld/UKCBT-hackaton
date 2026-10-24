@@ -14,6 +14,8 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | LICENSE, ATTRIBUTION, SUBMISSION | Partner | done, update at the end | root files |
 | **Medium-case features (slow motifs)** | Partner | in progress | `src/features/medium.py` |
 | Slides | Partner | after medium | `report/` |
+| **Easy look-alike separation (motif shape)** | Partner helper 1 | in progress | `src/features/shape.py`, `explore/SHAPE.md` |
+| **Pseudo-labelling / transductive check** | Partner helper 2 | in progress | `explore/pseudo.py`, `explore/PSEUDO.md` |
 
 ## Current best scores (out-of-fold AP, grouped 5-fold)
 
