@@ -31,6 +31,7 @@ v17, v28, v17r, v26, scheme, v13cf (see `SUBMISSION.md` for what each one is). T
 | 60.9 | same, lifted to the very top | |
 | 60.9 / 53.4 / 37.7 | blend12 with 40 / 100 / 366 test-week odd relays at the top | `scripts/test_odd.py`; Hard stayed at 0%, all were normal |
 | 70.3 / 70.3 | blend12 with v28 counted twice / three times | amount scale shift check; no change |
+| 69.8 / 68.3 / 65.5 | blend12 with slow-closure payments just below the top 1% lifted by 0.005 / 0.01 / 0.015 | `scripts/medium_boost.py`; +1.7 on train OOF but did not transfer to test |
 | 54.6 | GNN alone | `scripts/gnn_model.py` |
 | 53.8 | learning to rank alone | `scripts/ltr_run.py`; catches 10% of medium but ranks easy cases worse |
 
