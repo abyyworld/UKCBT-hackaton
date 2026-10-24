@@ -88,3 +88,6 @@ Uploaded for LB: pending. Next: more pattern windows (v14).
   1. `python -m src.stage2 --tag v17c --modules local,episodes,isolation,patterns,shape --sub realmotif --seeds 2 --consistent --predict --testpred folds` (about 6 min)
   2. pure stage 1 on v13 modules as a check: `python -m src.predict --tag s1v13 --modules local,episodes,isolation,patterns,shape --seeds 2`
   3. rank blend 0.25 v17c + 0.75 s1v13 (best on the nested holdout).
+- **Update 14:35, best honest candidate: consistent stage 2 without the realmotif model.** Nested holdout: 63.04 vs stage 1 62.57 (pooled 61.09 vs 60.35), the only stage 2 variant that beats stage 1 there. With realmotif it drops to 61.90, regularised 62.09. Honest OOF (2 seeds): stage 1 61.23, stage 2 62.34 (easy 80.8, medium 9.7, hard 1.1).
+  Command (about 5 min): `python -m src.stage2 --tag v13c --modules local,episodes,isolation,patterns,shape --sub none --seeds 2 --consistent --predict --testpred folds`
+  Suggested LB A/B: v13c against v17. If v13c is not worse, it is the safer final pick.
