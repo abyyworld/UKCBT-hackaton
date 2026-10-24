@@ -25,6 +25,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | **Medium wallet reuse (helper 2)** | Partner helper 2 | done, dropped (lean +0.33 ALL, +0.27 medium over 5 seeds), see REUSE.md | `src/features/reuse.py`, `explore/REUSE.md` |
 | **Medium value matching (helper 3)** | Partner helper 3 | in progress | `src/features/match.py`, `explore/MATCH.md` |
 | Hard relay signal hunt (pass-through, cover, gap) | Partner helper 3 | done, dropped: ALL 60.01 vs 61.23, hard 0.92 vs 0.89 (seed 0). Scheme-level signal is real but needs scheme reconstruction, see HARD.md | `explore/HARD.md` |
+| Scheme-level model (alternative for rank blend) | Aby, scheme session | done: OOF ALL 58.65, easy 79.33, medium 5.57, hard 0.70. Runs in about 2 min, writes data/oof/scheme.parquet and submissions/scheme.csv | `scripts/scheme_model.py` |
 
 ## Current best scores (out-of-fold AP, grouped 5-fold)
 
