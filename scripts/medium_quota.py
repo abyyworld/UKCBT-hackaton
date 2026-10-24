@@ -5,7 +5,7 @@
 The leaderboard reviews the top 1% of each ranking. Medium laundering (the same motifs stretched over hours) sits
 just below that band in our main models. This takes the payments that the medium expert of
 scripts/family_experts.py ranks highest but the base ranking leaves outside its top 1%, and lifts the --n strongest
-of them to the bottom of the base top 1% (score = the base's 99th percentile, so the base top 1% keeps its order).
+of them into the last --n places of the top 1% (the base's best rows keep their order above them).
 On train the same rule runs on out-of-fold scores, to show how many medium cases it brings into the top 1% and
 what it does to average precision. --n is per 40,000 payments.
 """
@@ -25,10 +25,13 @@ from src.predict import write  # noqa: E402
 def promote(base, med, n, band=0.01):
     """base, med: percentile ranks. Lift the n rows with the highest med outside the base top band."""
     base = base.copy()
-    cut = np.quantile(base, 1 - band)
-    outside = np.where(base < cut)[0]
+    k = int(round(band * len(base)))
+    order = np.sort(base)[::-1]
+    outside = np.where(base < order[k - 1])[0]
     pick = outside[np.argsort(-med[outside])[:n]]
-    base[pick] = cut + 1e-9 * (1 + med[pick])
+    # the lifted rows take the last n places of the top band, just below the base's (k - n) best rows
+    anchor = order[max(k - n - 1, 0)]
+    base[pick] = anchor - 1e-9 * (2 - med[pick])
     return base, pick
 
 
