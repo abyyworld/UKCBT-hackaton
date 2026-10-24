@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedGroupKFold
 
-from src.cv import PARAMS, oof_scores, report, training_frame
+from src.cv import PARAMS, report, training_frame
 from src.features import build_split
 from src.features.episodes import SCALES, _components
 from src.predict import fit_predict, write
@@ -83,19 +83,25 @@ def collective_features(txs, score, prefix=""):
 SUBSETS = {"realmotif": MOTIF_FAMILIES, "realrelay": RELAY_FAMILIES}
 
 
-def subset_oof(X, y, groups, mask, seed=0, n_splits=5):
-    """Out-of-fold scores from a model fit only on rows in `mask` (for example all motif-shaped transactions, real
-    and look-alike), so it spends its capacity on telling the planted ones from the look-alikes. Same folds as
-    src.cv.oof_scores; every held-out row is scored. The mask comes from family and is used only to pick
-    training rows, never as a feature."""
-    oof = np.zeros(len(y))
+def oof_and_test(X, y, groups, seed=0, mask=None, X_test=None, n_splits=5):
+    """Out-of-fold scores, same folds as src.cv.oof_scores, plus, when X_test is given, the mean of the five fold
+    models on the test rows. With `mask`, each fold model is fit only on its training rows inside the mask (for
+    example all motif-shaped payments, real and look-alike), so it spends its capacity on telling the planted ones
+    from the look-alikes; the mask comes from family and only picks training rows, it is never a feature.
+    Fold-model test scores have the same spread as the OOF scores the next stage was trained on, unlike a fit on
+    all of train, which is sharper."""
+    oof, test = np.zeros(len(y)), np.zeros(0 if X_test is None else len(X_test))
     folds = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     for fit, hold in folds.split(X, y, groups):
-        f = fit[mask[fit]]
+        if mask is not None:
+            fit = fit[mask[fit]]
         model = lgb.LGBMClassifier(**{**PARAMS, "random_state": seed})
-        model.fit(X.iloc[f], y[f])
+        model.fit(X.iloc[fit], y[fit])
         oof[hold] = model.predict_proba(X.iloc[hold])[:, 1]
-    return oof
+        if X_test is not None:
+            test += model.predict_proba(X_test[X.columns])[:, 1] / n_splits
+    return oof, test
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
@@ -107,41 +113,53 @@ if __name__ == "__main__":
     ap.add_argument("--sub", default="realmotif,realrelay",
                     help="subset models whose scores also feed stage 2 (comma list of SUBSETS keys, or none)")
     ap.add_argument("--rounds", type=int, default=1, help="rounds of collective scoring on top of stage 1")
+    ap.add_argument("--testpred", default="full", choices=["full", "folds"],
+                    help="score test with models fit on all of train (full) or with the mean of the fold models")
     args = ap.parse_args()
     modules = args.modules.split(",")
 
     X, lab, groups = training_frame(modules)
     y = lab["label"].to_numpy()
     train_txs, _ = build_split("train", modules)
+    test_txs, X_test = build_split("test", modules) if args.predict else (None, None)
+    folds_mode = args.predict and args.testpred == "folds"
+
+    def run(Xtr, target, mask=None, Xte=None):
+        """Seed-averaged OOF scores, and test scores: fold models in folds mode, else a fit on all of train."""
+        res = [oof_and_test(Xtr, target, groups, sd, mask, Xte if folds_mode else None) for sd in range(args.seeds)]
+        oof = np.mean([r[0] for r in res], axis=0)
+        if Xte is None:
+            return oof, None
+        if folds_mode:
+            return oof, np.mean([r[1] for r in res], axis=0)
+        keep = np.ones(len(target), bool) if mask is None else mask
+        return oof, fit_predict(Xtr[keep], target[keep], Xte, args.seeds)
+
     targets = aux_targets(lab) if args.aux else {"susp": y}
-    oof1 = {k: np.mean([oof_scores(X, t, groups, seed=sd) for sd in range(args.seeds)], axis=0) for k, t in targets.items()}
-    report(oof1["susp"], lab, f"{args.tag} stage1")
     subs = [k for k in args.sub.split(",") if k in SUBSETS]
     masks = {k: lab["family"].isin(SUBSETS[k]).to_numpy() for k in subs}
+    oof1, test1 = {}, {}
+    for k, t in targets.items():
+        oof1[k], test1[k] = run(X, t, None, X_test)
+    report(oof1["susp"], lab, f"{args.tag} stage1")
     for k in subs:
-        oof1[k] = np.mean([subset_oof(X, y, groups, masks[k], seed=sd) for sd in range(args.seeds)], axis=0)
-    C = pd.concat([collective_features(train_txs, o, f"{k}_") for k, o in oof1.items()], axis=1)
-    X2 = pd.concat([X, C], axis=1)
-    oof2 = np.mean([oof_scores(X2, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
+        oof1[k], test1[k] = run(X, y, masks[k], X_test)
+
+    def stack(X_base, txs, scores, prefix_round=""):
+        C = pd.concat([collective_features(txs, o, f"{prefix_round}{k}_") for k, o in scores.items()], axis=1)
+        return pd.concat([X_base, C], axis=1)
+
+    X2 = stack(X, train_txs, oof1)
+    X2_test = stack(X_test, test_txs, test1) if args.predict else None
+    oof2, raw = run(X2, y, None, X2_test)
     report(oof2, lab, f"{args.tag} stage2")
-    later = []  # (X_k, scores) for rounds after the first
     for k in range(2, args.rounds + 1):
-        Xk = pd.concat([X2, collective_features(train_txs, oof2, f"r{k}_")], axis=1)
-        oof2 = np.mean([oof_scores(Xk, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
+        X2 = stack(X2, train_txs, {"": oof2}, f"r{k}")
+        X2_test = stack(X2_test, test_txs, {"": raw}, f"r{k}") if args.predict else None
+        oof2, raw = run(X2, y, None, X2_test)
         report(oof2, lab, f"{args.tag} round{k}")
-        later.append(Xk)
     os.makedirs("data/oof", exist_ok=True)
     pd.DataFrame({"tx": lab.index, "oof": oof2}).to_parquet(f"data/oof/{args.tag}.parquet")
 
     if args.predict:
-        test_txs, X_test = build_split("test", modules)
-        s1_test = {k: fit_predict(X, t, X_test, args.seeds) for k, t in targets.items()}
-        for k in subs:
-            s1_test[k] = fit_predict(X[masks[k]], y[masks[k]], X_test, args.seeds)
-        C_test = pd.concat([collective_features(test_txs, o, f"{k}_") for k, o in s1_test.items()], axis=1)
-        X2_test = pd.concat([X_test, C_test], axis=1)
-        raw = fit_predict(X2, y, X2_test, args.seeds)
-        for k, Xk in enumerate(later, start=2):
-            Xk_test = pd.concat([X2_test, collective_features(test_txs, raw, f"r{k}_")], axis=1)
-            raw = fit_predict(Xk, y, Xk_test, args.seeds)
-        write(args.tag, test_txs, raw, s1_test["susp"])
+        write(args.tag, test_txs, raw, test1["susp"])
