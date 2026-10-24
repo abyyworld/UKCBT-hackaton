@@ -69,3 +69,7 @@ What we learned (scenario medians in train):
 - `explore/medium_specialist.py`: a second LightGBM trained on medium positives only, blended into the main score
   (sum, max, rank max). Every blend is worse than the main model alone (best: max 59.16 vs 59.24). The medium cases
   are not separable with enough confidence to beat easy cases at the top of the ranking.
+
+## Pseudo-labelling (dropped)
+See `explore/PSEUDO.md`. Best setting looked like +1.16 ALL on seeds 0 to 2 (local), but only +0.03 on fresh seeds
+3 and 4, and +0.44 with local + episodes. Noise, so not used.
