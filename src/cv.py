@@ -33,7 +33,12 @@ def training_frame(modules=None, refresh=None):
     lab = load_labels().set_index("tx").loc[txs["tx"]]
     global SAMPLE_WEIGHT
     SAMPLE_WEIGHT = lab["difficulty"].map(WEIGHTS).fillna(1.0).to_numpy()
-    groups = lab["scenario_id"].fillna(pd.Series(lab.index, index=lab.index)).to_numpy()
+    singles = pd.Series(lab.index, index=lab.index)
+    if os.environ.get("CV_GROUP") == "cohort":
+        # whole planted batches held out together: a closer stand-in for test variations absent from training
+        groups = lab["cohort_id"].fillna(lab["scenario_id"]).fillna(singles).to_numpy()
+    else:
+        groups = lab["scenario_id"].fillna(singles).to_numpy()
     return X, lab, groups
 
 
