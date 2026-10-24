@@ -1,6 +1,6 @@
 # Decode & Detect: team Batman and Robin
 
-Fewer than 10 slides. Plain words. Placeholders are marked TODO.
+Source text for the slide decks (`report/DecodeDetect_BatmanAndRobin.pptx`, built by `report/make_deck.js`).
 
 ---
 
@@ -83,8 +83,8 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 | Local features only (baseline) | 58.6 | 77.5 | 5.8 | 0.8 | |
 | Local + episodes, stage 2 group scoring | 61.6 | | | | 67.3 |
 | + scheme isolation | 61.9 | | | | 67.6 (blend) |
-| v13: + first-time-pair patterns + motif shape, stage 2 | 63.8 | 79.2 | 10.0 | 2.1 | TODO |
-| v17: + real-vs-look-alike motif model feeding stage 2 | 67.5 | | 17.8 | | TODO |
+| v13: + first-time-pair patterns + motif shape, stage 2 | 63.8 | 79.2 | 10.0 | 2.1 | 68.5 |
+| v17: + real-vs-look-alike motif model feeding stage 2 | 67.5 | | 17.8 | | 69.2 |
 | **Final: rank blend of six models** | 67.5 (best single) | | | | **70.3** |
 
 - The leaderboard runs about 5.7 points above our out-of-fold AP; differences under 1 point are noise.
@@ -92,9 +92,7 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
   closed squares, a medium-only model, pseudo-labelling, wider pattern windows (see `explore/NOTES.md`).
 
 ---|---|---|---|---|---|
-| Baseline | 58.6 | 77.5 | 5.8 | 0.8 | TODO |
-| TODO | | | | | |
-| v17: + real-vs-look-alike motif model feeding stage 2 | 67.5 | | 17.8 | | TODO |
+| v17: + real-vs-look-alike motif model feeding stage 2 | 67.5 | | 17.8 | | 69.2 |
 | **Final: rank blend of six models** | 67.5 (best single) | | | | **70.3** |
 
 ---
@@ -126,12 +124,12 @@ pass-through: none of its payments reach our top 1% (best rank 1,204).
   scenarios with exactly one laundering per batch, and even against its own 99 siblings the laundering one is
   ordinary on size, amounts, timing, assets and relationship history.
 - 25 more hard labels are random by design. Together this caps any honest model at roughly AP 82.
-- The test set has variations absent from training. TODO: what we did about it.
+- The test set has variations absent from training. What helped: blending differently built models (69.2 to 70.3).
 - Next: more labels for the hard cases, longer history than one week, account-level models.
 
 ---
 
 ## 9. AI disclosure
 
-- TODO: tools and models, what each did (copy from `ATTRIBUTION.md`).
+- AI coding assistants helped write code and run experiments; every session, tool and model is listed in `ATTRIBUTION.md`.
 - We ran every result ourselves. All scores come from our code, not from the AI.
