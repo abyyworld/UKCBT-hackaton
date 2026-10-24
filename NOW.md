@@ -13,7 +13,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Train vs test shift check | Partner | done | `explore/ADV_VAL.md` |
 | LICENSE, ATTRIBUTION, SUBMISSION | Partner | done, update at the end | root files |
 | Medium-case features (slow motifs) | Partner | done, dropped (no gain) | `src/features/medium.py` |
-| **Model settings and model blends (explore only, suggestions to Aby)** | Partner | in progress | `explore/models.py`, `explore/MODELS.md` |
+| Model settings and model blends | Partner | done: rank blend +0.7, see explore/MODELS.md | `explore/models.py`, `explore/MODELS.md` |
 | Slides | Partner | after medium | `report/` |
 | **Easy look-alike separation (motif shape)** | Partner helper 1 | in progress | `src/features/shape.py`, `explore/SHAPE.md` |
 | **Pseudo-labelling / transductive check** | Partner helper 2 | in progress | `explore/pseudo.py`, `explore/PSEUDO.md` |
