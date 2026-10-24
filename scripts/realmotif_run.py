@@ -62,6 +62,7 @@ if __name__ == "__main__":
     X2 = pd.concat([X, C], axis=1)
     oof2 = np.mean([oof_scores(X2, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
     report(oof2, lab, f"{args.tag} stage2+realmotif")
+    os.makedirs("data/oof", exist_ok=True)
     pd.DataFrame({"tx": lab.index, "oof": oof2}).to_parquet(f"data/oof/{args.tag}.parquet")
     test_txs, X_test = build_split("test", MODULES)
     s1_t = fit_predict(X, y, X_test, args.seeds)
