@@ -1,5 +1,20 @@
 # Partner go-plan
 
+## HARD RULE FROM 13:50 (overrides everything below)
+
+**All model runs, experiments, CV comparisons and uploads happen ONLY on Aby's side** (Aby's main session and its four
+helper sessions). Two machines computing the same thing wastes the last hours.
+
+**Partner side does NOT run models any more.** Partner and partner helpers work only on:
+1. `report/SLIDES.md` and `report/EXAMPLES.md` (final numbers at 15:30 from Aby).
+2. `ATTRIBUTION.md`, `SUBMISSION.md`, `TEAM.md`, `report/FINAL_STEPS.md`.
+3. The final reproducibility check of `run.py` after Aby's final run (about 15:30).
+4. Ideas: write each as one line under "Idea queue" in NOW.md. Aby's side decides and runs them. Do not run them.
+
+Already running on Aby's side, do not repeat: v22 (robust + slow), scheme model, test-week pseudo-labelling
+(`scripts/pseudo_adapt.py`), importance reweighting (`scripts/reweight_run.py`), shift audit (`explore/SHIFT.md`).
+
+
 ## CURRENT DIRECTION (read this first, updated 13:05)
 
 **Score:** our best leaderboard run is 68.6 (v16, a blend of v13 and v14). The leader is at 71.1, so we need about +2.5.

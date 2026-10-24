@@ -1,5 +1,20 @@
 # Who is working on what right now
 
+## HARD RULE FROM 13:50 (overrides everything below)
+
+**All model runs, experiments, CV comparisons and uploads happen ONLY on Aby's side** (Aby's main session and its four
+helper sessions). Two machines computing the same thing wastes the last hours.
+
+**Partner side does NOT run models any more.** Partner and partner helpers work only on:
+1. `report/SLIDES.md` and `report/EXAMPLES.md` (final numbers at 15:30 from Aby).
+2. `ATTRIBUTION.md`, `SUBMISSION.md`, `TEAM.md`, `report/FINAL_STEPS.md`.
+3. The final reproducibility check of `run.py` after Aby's final run (about 15:30).
+4. Ideas: write each as one line under "Idea queue" in NOW.md. Aby's side decides and runs them. Do not run them.
+
+Already running on Aby's side, do not repeat: v22 (robust + slow), scheme model, test-week pseudo-labelling
+(`scripts/pseudo_adapt.py`), importance reweighting (`scripts/reweight_run.py`), shift audit (`explore/SHIFT.md`).
+
+
 **Both AIs: read this before starting anything, and update it when you start or finish.** If a task is claimed by
 the other person, do not work on it. Pick an open task or ask your human. Pull, edit this file, push.
 
@@ -57,3 +72,6 @@ LB is about OOF + 5.7, but differences under about 1 point are noise.
 **v13 = new base for everyone: `--modules local,episodes,isolation,patterns,shape`, stage 2, 2 seeds.
 OOF stage 1 61.23, stage 2 63.81 (easy 79.2, medium 10.0, hard 2.1). `python run.py` reproduces it.**
 Uploaded for LB: pending. Next: more pattern windows (v14).
+
+## Idea queue (partner writes one line each, Aby's side runs them)
+
