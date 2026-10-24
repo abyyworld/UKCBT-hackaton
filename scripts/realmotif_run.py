@@ -17,7 +17,7 @@ import src.cv as cv  # noqa: E402
 from src.cv import PARAMS, oof_scores, report, training_frame  # noqa: E402
 from src.features import build_split  # noqa: E402
 from src.predict import fit_predict, write  # noqa: E402
-from src.stage2 import MOTIF_FAMILIES, collective_features  # noqa: E402
+from src.stage2 import MOTIF_FAMILIES, RELAY_FAMILIES, collective_features  # noqa: E402
 
 MODULES = ["local", "episodes", "isolation", "patterns", "shape"]
 
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
     ap.add_argument("--seeds", type=int, default=2)
+    ap.add_argument("--relay", action="store_true", help="also add a real-vs-normal model trained on relay-hub rows")
     args = ap.parse_args()
     X, lab, groups = training_frame(MODULES)
     y = lab["label"].to_numpy()
@@ -51,7 +52,12 @@ if __name__ == "__main__":
     s1 = np.mean([oof_scores(X, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
     rm = np.mean([subset_oof(X, y, groups, motif, sd) for sd in range(args.seeds)], axis=0)
     report(s1, lab, f"{args.tag} stage1")
-    C = pd.concat([collective_features(train_txs, s1, "susp_"), collective_features(train_txs, rm, "rm_")], axis=1)
+    parts = [collective_features(train_txs, s1, "susp_"), collective_features(train_txs, rm, "rm_")]
+    relay = lab["family"].isin(RELAY_FAMILIES).to_numpy()
+    if args.relay:
+        rr = np.mean([subset_oof(X, y, groups, relay, sd) for sd in range(args.seeds)], axis=0)
+        parts.append(collective_features(train_txs, rr, "rr_"))
+    C = pd.concat(parts, axis=1)
     X2 = pd.concat([X, C], axis=1)
     oof2 = np.mean([oof_scores(X2, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
     report(oof2, lab, f"{args.tag} stage2+realmotif")
@@ -59,7 +65,10 @@ if __name__ == "__main__":
     test_txs, X_test = build_split("test", MODULES)
     s1_t = fit_predict(X, y, X_test, args.seeds)
     rm_t = subset_fit_predict(X, y, motif, X_test, args.seeds)
-    C_t = pd.concat([collective_features(test_txs, s1_t, "susp_"), collective_features(test_txs, rm_t, "rm_")], axis=1)
+    parts_t = [collective_features(test_txs, s1_t, "susp_"), collective_features(test_txs, rm_t, "rm_")]
+    if args.relay:
+        parts_t.append(collective_features(test_txs, subset_fit_predict(X, y, relay, X_test, args.seeds), "rr_"))
+    C_t = pd.concat(parts_t, axis=1)
     X2_t = pd.concat([X_test, C_t], axis=1)
     raw = fit_predict(X2, y, X2_t, args.seeds)
     write(args.tag, test_txs, raw, s1_t)
