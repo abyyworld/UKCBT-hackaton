@@ -99,3 +99,14 @@ scenario payments (about 1,000 rows) to the bottom would lift AP from 63.8 to 78
 - **Medium schemes are not isolated:** during a medium scheme its wallets make 11.1 other payments on average against
   11.3 expected from their weekly rate (easy: 0.6 vs 0.6, so isolation is not a medium signal either).
 - **Demoting all relay traffic** (oracle, true family known): best +1.0 (scores x0.3). Not worth a model.
+
+## v17 on the leaderboard: 69.2 (+0.6) while out-of-fold rose +3.7. Amounts look like the test variation.
+Fast first-time-pair groups (4+ payments, median step 90 s or less, T = 300 s linking) have the same size, span,
+gaps, wallet counts, assets, conversions and value kept in train and test. What differs is how even the amounts are:
+coefficient of variation of amounts in the group, lower quartile / median / upper quartile 0.45 / 0.78 / 1.12 in
+train vs 0.64 / 1.01 / 1.30 in test. In train, suspicious fast groups are even (median 0.45) and normal fast groups
+uneven (0.91). So test laundering probably uses deliberately uneven amounts, and features that reward even amounts
+would push it down. `explore/robust_run.py` runs v17 unchanged except without the amount-evenness features
+(episode usd_std and rel_usd, shape hop ratios and kept_std, local amt_z). Its out-of-fold will be a little lower by
+construction; only the leaderboard can tell whether it transfers better. Suggest one upload of it and one of a rank
+blend with v17.
