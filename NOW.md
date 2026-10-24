@@ -8,7 +8,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Local, episode and fingerprint features | Aby | done | `src/features/local.py`, `episodes.py`, `fingerprint.py` |
 | Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress | `src/stage2.py` |
 | Hard relay cases hunter | Aby, hunter session 1 | in progress, report by 14:45 | `src/features/hardrelay.py`, `explore/HARD.md` |
-| Medium slow-scheme hunter | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/slowmotif.py`, `explore/MEDIUM2.md` |
+| Normal hub down-ranking (to lift medium) | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/hubs.py`, `explore/MEDIUM2.md` |
 | Final blend of best variants (v13, v14, v15, stage 2 real-vs-look-alike) | Aby | in progress | `src/blend.py`, `run.py` |
 | Scheme isolation features (wallets do nothing else during a scheme) | Aby | in progress | `src/features/local.py` |
 | `reason` column, `run.py`, final predictions, uploads, code ZIP | Aby | in progress | `src/predict.py`, `run.py`, `scripts/` |
@@ -42,6 +42,9 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | 3 | v7 stage 2 + local isolation features (OOF 61.94) | about 67.5 | 93% |
 | 4 | v9 blend v2 + v7 | **67.6** | 93% |
 | 5 | v8 stage 2 + episode isolation (OOF 62.35) and v11 blend v2+v7+v8 | 67.5 and 67.1 | 92 to 93% |
+
+| 6 | v13 stage 2 + patterns + shape (OOF 63.81) | 68.5 | 92% |
+| 7 | v16 blend v13 + v14 | **68.6** | 92% |
 
 LB is about OOF + 5.7, but differences under about 1 point are noise. Leader: 68.7 (10% of medium in their top 1%, we have 0%).
 **v13 = new base for everyone: `--modules local,episodes,isolation,patterns,shape`, stage 2, 2 seeds.
