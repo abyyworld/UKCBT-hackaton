@@ -27,14 +27,14 @@ from src.cv import report, training_frame  # noqa: E402
 from src.load import load_split  # noqa: E402
 from src.predict import write  # noqa: E402
 
-WINDOWS = [600, 3600, 21600, 86400]
-SG_WINDOWS = [3600, 21600]
+WINDOWS = [120, 600, 1800, 3600, 7200, 21600, 86400]
+SG_WINDOWS = [3600, 7200, 21600]
 CYCLE_W = 21600
 CYCLE_CAP = 4000
 BIG = 10**8
 
 
-def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag):
+def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag, own_lu):
     order = np.lexsort((ev_t, ev_wallet))
     key = ev_wallet[order].astype(np.int64) * BIG + ev_t[order]
     lu = ev_lu[order]
@@ -65,6 +65,19 @@ def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag):
     nxt = np.clip(q_le, 0, len(key) - 1)
     ok = (q_le < len(key)) & (key[nxt] // BIG == role_codes)
     F[f"{tag}_gap_next"] = np.where(ok, key[nxt] % BIG - t, np.nan)
+    # amount of the nearest previous / next event (does money move on at a similar size?)
+    F[f"{tag}_dlu_prev"] = np.where(F[f"{tag}_gap_prev"].notna(), lu[np.clip(prev_i, 0, None)] - own_lu, np.nan)
+    F[f"{tag}_dlu_next"] = np.where(F[f"{tag}_gap_next"].notna(), lu[nxt] - own_lu, np.nan)
+    # gaps to the nearest first-time-pair event of this wallet (tempo of new counterparties)
+    m = ev_new[order] > 0
+    kn = key[m]
+    a = np.searchsorted(kn, base + t, "left") - 1
+    ok = (a >= 0) & (kn[np.clip(a, 0, None)] // BIG == role_codes)
+    F[f"{tag}_gap_prev_new"] = np.where(ok, t - kn[np.clip(a, 0, None)] % BIG, np.nan)
+    b = np.searchsorted(kn, base + t, "right")
+    bb = np.clip(b, 0, len(kn) - 1)
+    ok = (b < len(kn)) & (kn[bb] // BIG == role_codes)
+    F[f"{tag}_gap_next_new"] = np.where(ok, kn[bb] % BIG - t, np.nan)
 
 
 def graph_loops(s, r, t):
@@ -82,6 +95,7 @@ def graph_loops(s, r, t):
     for L in range(2, 6):
         out[f"cyc_f{L}"] = np.zeros(n); out[f"cyc_b{L}"] = np.zeros(n)
     out["cyc_f_1h"] = np.zeros(n); out["cyc_b_1h"] = np.zeros(n)
+    out["cyc_f_2h"] = np.zeros(n); out["cyc_b_2h"] = np.zeros(n)
     out["cyc_min_len"] = np.full(n, np.nan); out["cyc_capped"] = np.zeros(n)
 
     for i in range(n):
@@ -132,6 +146,8 @@ def graph_loops(s, r, t):
                     minlen = min(minlen, L + 1)
                     if ot[k] - ti <= 3600:
                         out["cyc_f_1h"][i] += 1
+                    if ot[k] - ti <= 7200:
+                        out["cyc_f_2h"][i] += 1
                 elif L + 1 < 5 and v != ri:
                     stack.append((v, ot[k], L + 1))
         # backward cycles: payment closes it, r <- ... <- s with decreasing times in [t - W, t)
@@ -148,6 +164,8 @@ def graph_loops(s, r, t):
                     minlen = min(minlen, L + 1)
                     if ti - it[k] <= 3600:
                         out["cyc_b_1h"][i] += 1
+                    if ti - it[k] <= 7200:
+                        out["cyc_b_2h"][i] += 1
                 elif L + 1 < 5 and v != si:
                     stack.append((v, it[k], L + 1))
         if minlen < 99:
@@ -226,8 +244,8 @@ def features(split):
     # GFP-style windowed vertex statistics
     newf = first.astype(float)
     for role, codes in (("s", s), ("r", r)):
-        window_stats(F, codes, t, s, t, lu, newf, f"{role}out")
-        window_stats(F, codes, t, r, t, lu, newf, f"{role}in")
+        window_stats(F, codes, t, s, t, lu, newf, f"{role}out", lu)
+        window_stats(F, codes, t, r, t, lu, newf, f"{role}in", lu)
     # relative amount vs sender's usual
     F["lu_vs_sout_mean86400"] = lu - F["sout_b86400_mean"]
     print(f"[{split}] window features {F.shape[1]} cols, {time.time() - t0:.0f}s", flush=True)
