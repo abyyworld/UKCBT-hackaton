@@ -52,6 +52,7 @@ def load_split(name, directory=None):
     f["usd"] = _usd(rates, f["ts"].to_numpy(), f["asset"].to_numpy(), f["amount"].to_numpy())
     first = f.groupby("TRANSACTION_HASH").first()
     legs = f.groupby("TRANSACTION_HASH").size()
+    lp = f[f["TRANSFER_INDEX"].astype(int) > 0].groupby("TRANSACTION_HASH")["FROM_ADDRESS"].first()
 
     txs = pd.DataFrame({
         "tx": t["TRANSACTION_HASH"].to_numpy(),
@@ -78,6 +79,7 @@ def load_split(name, directory=None):
     txs["amount_in"] = txs["tx"].map(first["amount"])
     txs["usd_in"] = txs["tx"].map(first["usd"])
     txs["n_legs"] = txs["tx"].map(legs).astype(int)
+    txs["lp"] = txs["tx"].map(lp).fillna("")
     txs["usd_out"] = _usd(rates, ts, txs["asset_out"].to_numpy(), txs["amount_out"].to_numpy())
     txs["is_conversion"] = txs["asset_in"] != txs["asset_out"]
 
