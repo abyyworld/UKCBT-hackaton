@@ -6,7 +6,7 @@ Team **Batman and Robin**, Decode & Detect, 24 October 2026.
 
 - Python 3.13
 - About 45 minutes from raw data to the upload file on a 4-core Linux machine with 15 GB of RAM (feature caches
-  empty); the final check from an empty cache took 22 minutes and wrote a valid file. No GPU and no internet needed once the packages are installed.
+  empty; the final check took about 27 minutes). No GPU and no internet needed once the packages are installed.
 
 ```sh
 python3 -m venv .venv
@@ -41,6 +41,9 @@ It builds six models and rank-averages them with `src/blend.py` (see the docstri
 | v17r | v17 without the amount-evenness features | `explore/robust_run.py` |
 | v26 | rank average of v17 and a pseudo-labelling model cross-fitted on the unlabelled test week | `scripts/pseudo_adapt.py` |
 | scheme | scores whole candidate schemes and passes the score to their payments | `scripts/scheme_model.py` |
+| v13cf | stage 1 plus fold-consistent stage 2 with first-time-pair neighbour scores | `src/stage2.py --extra ftp` |
+
+A last step adds a plain-English `reason` column (`scripts/add_reasons.py`); it does not change the scores.
 | v13cf | stage 1 plus a fold-consistent stage 2 with first-time-pair neighbour scores | `src/stage2.py --consistent --extra ftp` |
 
 Features: `local, episodes, isolation, patterns, shape` (and `slow` for v28). Each model is averaged over 2 seeds.

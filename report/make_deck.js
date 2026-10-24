@@ -4,7 +4,7 @@
 const pptxgen = require("pptxgenjs");
 
 const PITCH = process.env.PITCH === "1";  // 6-slide, 3-minute version: skips slides 2, 4 and 5
-const FINAL = { oof: "67.5", lb: "69.2", label: "v17, best so far" };
+const FINAL = { oof: "67.5", lb: "70.3", label: "blend of six models" };
 
 const THEME = {
   name: "Decode and Detect",
@@ -160,7 +160,7 @@ s.addChart(pres.charts.BAR, [
   valGridLine: { color: "E3E8EE", size: 0.5 }, catGridLine: { style: "none" },
 });
 stat(s, 6.9, 1.25, 2.6, FINAL.lb, `final leaderboard score (${FINAL.label})`, C.accent1);
-stat(s, 6.9, 2.6, 2.6, FINAL.oof, "out-of-fold AP, grouped 5-fold");
+stat(s, 6.9, 2.6, 2.6, FINAL.oof, "out-of-fold AP of v17, the strongest single model");
 s.addText("Dropped after testing: relay features, slow-window counts, closed squares, a medium-only model, pseudo-labelling, value matching.",
   { x: 6.9, y: 3.95, w: 2.6, h: 1.1, fontSize: 11, color: C.accent4, valign: "top", isTextBox: true, margin: 0 });
 s.addNotes("Out-of-fold rose from 58.6 to 67.5. The leaderboard runs higher than out-of-fold, but the look-alike model gained 3.7 points offline and only 0.6 on the leaderboard: the test set contains variations that are not in training, which we discuss under limits.");
