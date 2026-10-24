@@ -78,6 +78,14 @@ def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag, own_lu, 
     bb = np.clip(b, 0, len(kn) - 1)
     ok = (b < len(kn)) & (kn[bb] // BIG == role_codes)
     F[f"{tag}_gap_next_new"] = np.where(ok, kn[bb] % BIG - t, np.nan)
+    # gaps to the 2nd and 3rd nearest first-time-pair events (is there a burst of new counterparties?)
+    for k in (1, 2):
+        ak, bk = a - k, b + k
+        ok = (ak >= 0) & (kn[np.clip(ak, 0, None)] // BIG == role_codes)
+        F[f"{tag}_gap_prev_new{k + 1}"] = np.where(ok, t - kn[np.clip(ak, 0, None)] % BIG, np.nan)
+        bc = np.clip(bk, 0, len(kn) - 1)
+        ok = (bk < len(kn)) & (kn[bc] // BIG == role_codes)
+        F[f"{tag}_gap_next_new{k + 1}"] = np.where(ok, kn[bc] % BIG - t, np.nan)
     # which payment is the neighbouring one (used for one round of neighbour feature passing)
     on = order[m]
     links[f"{tag}_prev"] = np.where(F[f"{tag}_gap_prev"].notna(), order[np.clip(prev_i, 0, None)], -1)
@@ -253,6 +261,12 @@ def features(split):
     for role, codes in (("s", s), ("r", r)):
         window_stats(F, codes, t, s, t, lu, newf, f"{role}out", lu, links)
         window_stats(F, codes, t, r, t, lu, newf, f"{role}in", lu, links)
+    # windowed counts relative to the wallet's usual hourly rate over the split
+    span_h = max(t.max() / 3600.0, 1.0)
+    for tag, tot in (("sout", "s_out_total"), ("sin", "s_in_total"), ("rout", "r_out_total"), ("rin", "r_in_total")):
+        rate = F[tot].to_numpy(float) / span_h
+        for w in (600, 3600, 7200):
+            F[f"{tag}_rel{w}"] = (F[f"{tag}_b{w}_n"] + F[f"{tag}_a{w}_n"]) / (rate * 2 * w / 3600 + 1e-3)
     # relative amount vs sender's usual
     F["lu_vs_sout_mean86400"] = lu - F["sout_b86400_mean"]
     print(f"[{split}] window features {F.shape[1]} cols, {time.time() - t0:.0f}s", flush=True)

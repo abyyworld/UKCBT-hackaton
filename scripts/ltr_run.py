@@ -7,7 +7,7 @@ objective (lambdarank and/or rank_xendcg) so the trees are fitted directly to pu
 Inputs are exactly those of scripts/extratrees_run.py: the v17 feature modules plus collective features built from
 v17's scores (out-of-fold v17 scores on train, v17 test scores on test).
 
-Queries: rows are sorted by timestamp and cut into contiguous time blocks (default 6 hours). Each block is one query.
+Queries: rows are sorted by timestamp and cut into contiguous time blocks (default 2 hours; 1h 60.84, 2h 62.01, 6h 61.81, 24h 61.01 OOF ALL). Each block is one query.
 Group sizes are passed in that sorted order and predictions are put back into the original row order afterwards.
 lambdarank gets a high truncation level because many positives share a block. Ranking scores are not probabilities,
 so they are min-max scaled to [0, 1] before writing.
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="ltr")
     ap.add_argument("--objs", default="lambdarank,binary")
-    ap.add_argument("--hours", type=float, default=6.0)
+    ap.add_argument("--hours", type=float, default=2.0)
     ap.add_argument("--base_oof", default="data/oof/v17_realmotif.parquet")
     ap.add_argument("--base_test", default="submissions/v17_realmotif.csv")
     args = ap.parse_args()
