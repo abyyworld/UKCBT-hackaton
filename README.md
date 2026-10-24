@@ -80,6 +80,7 @@ One row for each of the **40,101** test transactions, with exactly these columns
 
 - `TRANSACTION_HASH`: the transaction identifier from the supplied test data.
 - `score`: a numeric suspicion score between 0 and 1. Higher means more suspicious.
+- `reason` (optional): the portal also accepts a short explanation per transaction.
 
 Check before uploading:
 
@@ -88,7 +89,9 @@ Check before uploading:
 - The column names and format exactly match the template.
 - There is one prediction per **transaction**, even where a transaction contains several transfers.
 
-### Code ZIP (≤ 8 MiB)
+### Code ZIP (≤ 8 MiB, ≤ 64 MiB uncompressed)
+
+Leave out the data files and credentials. The portal stores the code for review but does not run it.
 
 - **Predictions and results:** the test predictions CSV and the relevant validation results.
 - **Code or notebook:** the code needed to generate the predictions.
@@ -109,7 +112,8 @@ Use the submission portal at <https://hackathon.ukcbt.org/>.
 2. Sign in with the organiser-issued access code (the team's unique submission code) and download the data.
 3. Upload the code ZIP and the predictions CSV together.
 4. Check that the portal accepts the files and returns a score.
-5. Review the score and the leaderboard. We can update the predictions before the deadline, with up to 50 uploads per UTC day.
+5. Review the score and the leaderboard. We can update the predictions before the deadline. The portal allows
+   **200 attempts per day** for team **Batman and Robin**, and each attempt can have an optional run name.
 6. Complete the supporting-material submission by following the portal instructions.
 
 **Everything must be submitted by 16:30.** Submit early enough to fix any errors, and if something goes wrong,
