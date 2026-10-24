@@ -64,6 +64,17 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 
 | Version | Out-of-fold AP | Easy | Medium | Hard | Leaderboard |
 |---|---|---|---|---|---|
+| Local features only (baseline) | 58.6 | 77.5 | 5.8 | 0.8 | |
+| Local + episodes, stage 2 group scoring | 61.6 | | | | 67.3 |
+| + scheme isolation | 61.9 | | | | 67.6 (blend) |
+| v13: + first-time-pair patterns + motif shape, stage 2 | 63.8 | 79.2 | 10.0 | 2.1 | TODO |
+| Final | TODO | | | | TODO |
+
+- The leaderboard runs about 5.7 points above our out-of-fold AP; differences under 1 point are noise.
+- Ideas tested and dropped because they did not raise out-of-fold AP: relay hub features, slow-motif window counts,
+  closed squares, a medium-only model, pseudo-labelling, wider pattern windows (see `explore/NOTES.md`).
+
+---|---|---|---|---|---|
 | Baseline | 58.6 | 77.5 | 5.8 | 0.8 | TODO |
 | TODO | | | | | |
 | Final | TODO | | | | TODO |
