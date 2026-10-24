@@ -51,7 +51,16 @@ Also shifted outside the giant group: `xrp_out` and `conv` at novel3600 and nove
 
 ## Cost of dropping (out-of-fold AP, seed 0, same six modules)
 
-Running (sequential, seed 0). Numbers will be added here.
+Stage 1 only, one seed, so differences under about 1 point are noise.
+
+| Version | Features | ALL | easy | medium | hard |
+|---|---|---|---|---|---|
+| all six modules | 459 | 60.30 | 79.56 | 7.55 | 0.84 |
+| drop giant-scale episodes | 413 | 59.83 | 78.95 | 7.77 | 0.85 |
+| drop amount evenness | 423 | 59.45 | 77.94 | 8.64 | 0.84 |
+| drop both (regex below) | 383 | 59.97 | 78.60 | 8.47 | 0.84 |
+
+Dropping both costs 0.3 OOF points (noise level), loses about 1 point on easy and gains about 0.9 on medium.
 
 ## Regex of feature names to drop
 
@@ -63,12 +72,15 @@ Running (sequential, seed 0). Numbers will be added here.
 
 ## Recommendation
 
+Short version: drop the whole regex. It costs only 0.3 OOF points and removes the two feature groups most
+likely to behave differently on test. Confirm with one upload against the current best.
+
 1. Drop the giant-scale episode features first (`^episodes__novel(7200|21600)_`). They carry no class signal
    inside the giant group and are a pure split fingerprint, so the leaderboard risk is high and the OOF cost should
    be small. A softer fix inside `episodes.py` (Aby's file): set the episode stats to NaN when the episode has more
    than about 200 payments, at every scale, which also covers the novel3600 giant group (8% of train rows).
 2. Drop or neutralise the amount-evenness group
-   (`(usd_std|usd_range|drift_abs|kept_std|kept_absmax|hop_ratio_abs)$`). Expect OOF to fall, because train
+   (`(usd_std|usd_range|drift_abs|kept_std|kept_absmax|hop_ratio_abs)$`). OOF falls a little (59.45), because train
    rewards even amounts, but the leaderboard should gain or hold, as the partner saw with v17 (+3.7 OOF, +0.5 LB).
    Judge this one by an upload, not by OOF.
 3. Keep timing, structure, counterparty and flow-balance features: their test medians sit inside the train range
