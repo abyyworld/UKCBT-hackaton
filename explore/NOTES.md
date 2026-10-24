@@ -36,3 +36,24 @@ look far more learnable than the hard relays.
 ## Task 2: train vs test shift
 See `explore/ADV_VAL.md`. No feature shifts on its own (largest single-feature AUC 0.548). The 0.99 combined AUC is a
 wallet fingerprint from the weekly count features, not a behaviour change.
+
+## Task 5: medium-case features (dropped)
+`src/features/medium.py`: first-time-pair fan-out and fan-in over 30 min to 4 h, gap evenness, onward chains of new
+pairs (5 to 60 min), small complete blocks of new pairs, burst against the wallet's own week, gap to the nearest
+other new-pair payment on the same wallets, and the median step inside groups of linked new-pair payments.
+Five seeds: **local + medium mean ALL 58.69** against local about 58.5. Medium AP moved from about 7.2 to 6.7.
+No real gain, so it was deleted.
+
+What we learned (scenario medians in train):
+
+| | Easy suspicious | Normal look-alike | Medium suspicious |
+|---|---|---|---|
+| Step gap | 1 min | 10 min | 18 min |
+| Motif span | 5 min | 60 min | 110 min |
+
+- Medium motifs run on busy wallets (about 110 payments a week each) and 55% of normal payments are also new pairs,
+  so in any 1 to 2 hour window a normal busy wallet already has 3 or more new-pair payments. Window counts drown.
+- Linking new-pair payments through shared wallets percolates: at 30 min links the groups merge into thousands.
+  The median step inside the group is the best single medium signal (AUC 0.84 against normal), but its AP is only 2%.
+- Single-seed out-of-fold AP moves by about 3 points between seeds (57 to 61). Only trust gains above 1 point on
+  three or more seeds.
