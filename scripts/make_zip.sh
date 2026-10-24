@@ -7,7 +7,7 @@ out="${1:-submissions/code.zip}"
 preds="${2:-submissions/final.csv}"
 mkdir -p "$(dirname "$out")"
 rm -f "$out"
-files=(src run.py requirements.txt README.md SUBMISSION.md LICENSE ATTRIBUTION.md TEAM.md TEAM_RULES.md NOW.md scripts report)
+files=(src run.py requirements.txt requirements-gnn.txt README.md SUBMISSION.md LICENSE ATTRIBUTION.md TEAM.md TEAM_RULES.md NOW.md scripts report)
 for f in explore/*.md; do files+=("$f"); done
 [ -f "$preds" ] && files+=("$preds")
 existing=()
