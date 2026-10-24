@@ -9,6 +9,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
+import src.cv as cv
 from src.cv import PARAMS, training_frame
 from src.features import MODULES, build_split
 
@@ -19,7 +20,8 @@ def fit_predict(X, y, X_test, seeds=3, params=None):
     pred = np.zeros(len(X_test))
     for seed in range(seeds):
         model = lgb.LGBMClassifier(**{**PARAMS, **(params or {}), "random_state": seed})
-        model.fit(X, y)
+        sw = cv.SAMPLE_WEIGHT if cv.SAMPLE_WEIGHT is not None and len(cv.SAMPLE_WEIGHT) == len(y) else None
+        model.fit(X, y, sample_weight=sw)
         pred += model.predict_proba(X_test[X.columns])[:, 1]
     return pred / seeds
 

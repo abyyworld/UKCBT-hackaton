@@ -14,6 +14,11 @@ from sklearn.model_selection import StratifiedGroupKFold
 from src.features import MODULES, build_split
 from src.load import load_labels
 
+# Optional training weights by difficulty (used only to weight training rows, never as a feature).
+# AP counts every suspicious case equally, but the loss is dominated by the 800 easy ones.
+WEIGHTS = {k: float(os.environ.get(f"W_{k.upper()}", 1)) for k in ("easy", "medium", "hard")}
+SAMPLE_WEIGHT = None  # set by training_frame, aligned with the training rows
+
 PARAMS = dict(objective="binary", learning_rate=0.03, num_leaves=31, min_child_samples=20,
               feature_fraction=0.7, bagging_fraction=0.8, bagging_freq=1, lambda_l2=1.0,
               n_estimators=700, verbose=-1, n_jobs=4)
@@ -24,6 +29,8 @@ def training_frame(modules=None, refresh=None):
         build_split("train", [name], refresh=True)
     txs, X = build_split("train", modules)
     lab = load_labels().set_index("tx").loc[txs["tx"]]
+    global SAMPLE_WEIGHT
+    SAMPLE_WEIGHT = lab["difficulty"].map(WEIGHTS).fillna(1.0).to_numpy()
     groups = lab["scenario_id"].fillna(pd.Series(lab.index, index=lab.index)).to_numpy()
     return X, lab, groups
 
@@ -34,7 +41,8 @@ def oof_scores(X, y, groups, seed=0, n_splits=5, params=None):
     folds = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     for fit, hold in folds.split(X, y, groups):
         model = lgb.LGBMClassifier(**params)
-        model.fit(X.iloc[fit], y[fit])
+        sw = SAMPLE_WEIGHT[fit] if SAMPLE_WEIGHT is not None and len(SAMPLE_WEIGHT) == len(y) else None
+        model.fit(X.iloc[fit], y[fit], sample_weight=sw)
         oof[hold] = model.predict_proba(X.iloc[hold])[:, 1]
     return oof
 
