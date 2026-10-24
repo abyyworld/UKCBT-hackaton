@@ -79,6 +79,24 @@ def collective_features(txs, score, prefix=""):
     return f.add_prefix(prefix)
 
 
+
+SUBSETS = {"realmotif": MOTIF_FAMILIES, "realrelay": RELAY_FAMILIES}
+
+
+def subset_oof(X, y, groups, mask, seed=0, n_splits=5):
+    """Out-of-fold scores from a model fit only on rows in `mask` (for example all motif-shaped transactions, real
+    and look-alike), so it spends its capacity on telling the planted ones from the look-alikes. Same folds as
+    src.cv.oof_scores; every held-out row is scored. The mask comes from family and is used only to pick
+    training rows, never as a feature."""
+    oof = np.zeros(len(y))
+    folds = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    for fit, hold in folds.split(X, y, groups):
+        f = fit[mask[fit]]
+        model = lgb.LGBMClassifier(**{**PARAMS, "random_state": seed})
+        model.fit(X.iloc[f], y[f])
+        oof[hold] = model.predict_proba(X.iloc[hold])[:, 1]
+    return oof
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
@@ -86,6 +104,8 @@ if __name__ == "__main__":
     ap.add_argument("--predict", action="store_true")
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--aux", action="store_true", help="also stack motif and relay membership models")
+    ap.add_argument("--sub", default="realmotif,realrelay",
+                    help="subset models whose scores also feed stage 2 (comma list of SUBSETS keys, or none)")
     ap.add_argument("--rounds", type=int, default=1, help="rounds of collective scoring on top of stage 1")
     args = ap.parse_args()
     modules = args.modules.split(",")
@@ -96,6 +116,10 @@ if __name__ == "__main__":
     targets = aux_targets(lab) if args.aux else {"susp": y}
     oof1 = {k: np.mean([oof_scores(X, t, groups, seed=sd) for sd in range(args.seeds)], axis=0) for k, t in targets.items()}
     report(oof1["susp"], lab, f"{args.tag} stage1")
+    subs = [k for k in args.sub.split(",") if k in SUBSETS]
+    masks = {k: lab["family"].isin(SUBSETS[k]).to_numpy() for k in subs}
+    for k in subs:
+        oof1[k] = np.mean([subset_oof(X, y, groups, masks[k], seed=sd) for sd in range(args.seeds)], axis=0)
     C = pd.concat([collective_features(train_txs, o, f"{k}_") for k, o in oof1.items()], axis=1)
     X2 = pd.concat([X, C], axis=1)
     oof2 = np.mean([oof_scores(X2, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
@@ -112,6 +136,8 @@ if __name__ == "__main__":
     if args.predict:
         test_txs, X_test = build_split("test", modules)
         s1_test = {k: fit_predict(X, t, X_test, args.seeds) for k, t in targets.items()}
+        for k in subs:
+            s1_test[k] = fit_predict(X[masks[k]], y[masks[k]], X_test, args.seeds)
         C_test = pd.concat([collective_features(test_txs, o, f"{k}_") for k, o in s1_test.items()], axis=1)
         X2_test = pd.concat([X_test, C_test], axis=1)
         raw = fit_predict(X2, y, X2_test, args.seeds)

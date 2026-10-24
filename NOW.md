@@ -6,7 +6,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Task | Owner | Status | Files |
 |---|---|---|---|
 | Local, episode and fingerprint features | Aby | done | `src/features/local.py`, `episodes.py`, `fingerprint.py` |
-| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress | `src/stage2.py` |
+| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress. `src/stage2.py --sub realmotif,realrelay` (default) adds real-vs-look-alike motif and relay subset models: local,episodes 3 seeds OOF 64.07 (easy 75.2, medium 10.5, hard 4.0) vs 62.66 without (2 seeds). Dropped: low-score neighbour counts, wallet profiles, suspect-cluster isolation, round 2, LightGBM settings (all noise or worse). Next: test-time stage 1 from fold models to match OOF | `src/stage2.py` |
 | Hard relay cases hunter | Aby, hunter session 1 | in progress, report by 14:45 | `src/features/hardrelay.py`, `explore/HARD.md` |
 | Normal hub down-ranking (to lift medium) | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/hubs.py`, `explore/MEDIUM2.md` |
 | Alternative method: whole-scheme classifier (rebuild schemes, score each scheme, map to payments) | Aby, alt session | in progress, due 14:40 | `scripts/scheme_model.py` |
