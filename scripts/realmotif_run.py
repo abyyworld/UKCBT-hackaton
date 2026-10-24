@@ -5,6 +5,7 @@ learns what separates planted motifs from their normal look-alikes. Its scores f
     python scripts/realmotif_run.py --tag v17 --seeds 2
 """
 import argparse
+import os
 import sys
 
 import lightgbm as lgb
@@ -19,7 +20,7 @@ from src.features import build_split  # noqa: E402
 from src.predict import fit_predict, write  # noqa: E402
 from src.stage2 import MOTIF_FAMILIES, RELAY_FAMILIES, collective_features  # noqa: E402
 
-MODULES = ["local", "episodes", "isolation", "patterns", "shape"]
+MODULES = os.environ.get("MODULES", "local,episodes,isolation,patterns,shape").split(",")
 
 
 def subset_oof(X, y, groups, mask, seed):
