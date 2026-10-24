@@ -29,6 +29,8 @@ v17, v28, v17r, v26, scheme, v13cf (see `SUBMISSION.md` for what each one is). T
 | 68.5 | blend7 | blend6 + ExtraTrees at half weight |
 | 67.9 | blend12, 40 relay rows lifted | hard-case score from `scripts/hard_odd.py`; Hard stayed at 0% |
 | 60.9 | same, lifted to the very top | |
+| 60.9 / 53.4 / 37.7 | blend12 with 40 / 100 / 366 test-week odd relays at the top | `scripts/test_odd.py`; Hard stayed at 0%, all were normal |
+| 70.3 / 70.3 | blend12 with v28 counted twice / three times | amount scale shift check; no change |
 | 54.6 | GNN alone | `scripts/gnn_model.py` |
 | 53.8 | learning to rank alone | `scripts/ltr_run.py`; catches 10% of medium but ranks easy cases worse |
 
