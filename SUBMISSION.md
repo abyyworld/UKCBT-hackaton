@@ -64,3 +64,16 @@ To measure our validation score (grouped 5-fold out-of-fold average precision on
 - Note: v26 was built from an earlier pseudo-labelling run, so a fresh `run.py` gives a file that is very close to,
   but not byte-identical with, the uploaded one (rank correlation of v26 with the documented recipe 0.99).
 - Commit: `86a5374`
+
+## Last-hour re-ranker (optional, only if one of its files beat 70.3 on the leaderboard)
+
+After `run.py` has written `submissions/final.csv` and the member files:
+
+```sh
+.venv/bin/python scripts/flow_boost.py --base submissions/final.csv
+```
+
+This writes `submissions/fb_l15_t6.csv`, `fb_l30_t6.csv`, `fb_l15_t24.csv`, `fb_l30_t24.csv` and `fb_pm.csv` in under a
+minute. It uses no labels: the top 400 rows of `final.csv` stay in place, and payments below them are lifted when they
+share a quiet (non-hub) wallet with a top-1,200 payment within 6 or 24 hours. `fb_pm` is a consensus (power-mean) blend
+of the six members. See the docstring of `scripts/flow_boost.py`.
