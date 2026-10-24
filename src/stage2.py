@@ -103,6 +103,38 @@ def oof_and_test(X, y, groups, seed=0, mask=None, X_test=None, n_splits=5):
     return oof, test
 
 
+def fold_models_scores(X, y, groups, seed=0, mask=None, X_test=None, n_splits=5):
+    """Score every train row with each of the five fold models. Returns (P, fold, test): P[:, k] is fold model k on
+    all rows, fold[i] the fold row i is held out in, test the mean of the fold models on X_test (or None)."""
+    P, fold = np.zeros((len(y), n_splits)), np.zeros(len(y), int)
+    test = None if X_test is None else np.zeros(len(X_test))
+    folds = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    for k, (fit, hold) in enumerate(folds.split(X, y, groups)):
+        if mask is not None:
+            fit = fit[mask[fit]]
+        model = lgb.LGBMClassifier(**{**PARAMS, "random_state": seed})
+        model.fit(X.iloc[fit], y[fit])
+        P[:, k] = model.predict_proba(X)[:, 1]
+        fold[hold] = k
+        if X_test is not None:
+            test += model.predict_proba(X_test[X.columns])[:, 1] / n_splits
+    return P, fold, test
+
+
+def consistent_collective(txs, P, fold, prefix=""):
+    """Collective features where row i's neighbours are all scored by the fold model that never saw i's fold.
+    Plain OOF scores leak: a normal payment on a planted wallet sits in another fold, so its OOF score comes from a
+    model that learned the planted payments next to it, and stage 2 learns to trust that leaked neighbour score."""
+    out = None
+    for k in range(P.shape[1]):
+        f = collective_features(txs, P[:, k], prefix)
+        if out is None:
+            out = f.copy()
+        rows = fold == k
+        out.iloc[rows] = f.iloc[rows].to_numpy()
+    return out
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
@@ -113,6 +145,9 @@ if __name__ == "__main__":
     ap.add_argument("--sub", default="realmotif,realrelay",
                     help="subset models whose scores also feed stage 2 (comma list of SUBSETS keys, or none)")
     ap.add_argument("--rounds", type=int, default=1, help="rounds of collective scoring on top of stage 1")
+    ap.add_argument("--consistent", action="store_true",
+                    help="fold-consistent collective features (no neighbour-score leak); stage 2 then uses one "
+                         "stage-1 fold split per seed")
     ap.add_argument("--testpred", default="full", choices=["full", "folds"],
                     help="score test with models fit on all of train (full) or with the mean of the fold models")
     args = ap.parse_args()
@@ -136,6 +171,37 @@ if __name__ == "__main__":
         return oof, fit_predict(Xtr[keep], target[keep], Xte, args.seeds)
 
     targets = aux_targets(lab) if args.aux else {"susp": y}
+    subs_c = [k for k in args.sub.split(",") if k in SUBSETS]
+    if args.consistent:
+        masks_c = {k: None for k in targets} | {k: lab["family"].isin(SUBSETS[k]).to_numpy() for k in subs_c}
+        tgt = {**targets, **{k: y for k in subs_c}}
+        oof2, raw, s1_test = np.zeros(len(y)), 0.0, None
+        for sd in range(args.seeds):
+            parts, parts_t = [X], [X_test]
+            for k, m in masks_c.items():
+                P, fold, te = fold_models_scores(X, tgt[k], groups, sd, m, X_test)
+                if k == "susp":
+                    s1_oof = P[np.arange(len(y)), fold]
+                    report(s1_oof, lab, f"{args.tag} stage1 seed{sd}")
+                    s1_test = te
+                parts.append(consistent_collective(train_txs, P, fold, f"{k}_"))
+                if args.predict:
+                    if args.testpred == "full":
+                        keep = np.ones(len(y), bool) if m is None else m
+                        te = fit_predict(X[keep], tgt[k][keep], X_test, 1)
+                    parts_t.append(collective_features(test_txs, te, f"{k}_"))
+            X2 = pd.concat(parts, axis=1)
+            o, _ = oof_and_test(X2, y, groups, sd)
+            oof2 += o / args.seeds
+            report(o, lab, f"{args.tag} stage2 seed{sd}")
+            if args.predict:
+                raw = raw + fit_predict(X2, y, pd.concat(parts_t, axis=1), 1) / args.seeds
+        report(oof2, lab, f"{args.tag} stage2")
+        os.makedirs("data/oof", exist_ok=True)
+        pd.DataFrame({"tx": lab.index, "oof": oof2}).to_parquet(f"data/oof/{args.tag}.parquet")
+        if args.predict:
+            write(args.tag, test_txs, raw, s1_test)
+        raise SystemExit
     subs = [k for k in args.sub.split(",") if k in SUBSETS]
     masks = {k: lab["family"].isin(SUBSETS[k]).to_numpy() for k in subs}
     oof1, test1 = {}, {}
