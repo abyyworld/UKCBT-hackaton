@@ -3,17 +3,16 @@
     python run.py            # writes submissions/final.csv
 
 Steps: build features for train and test, train the stage 1 and collective (stage 2) models with grouped
-cross-validation, score the test transactions, and rank-average the stage 1 and stage 2 scores.
+cross-validation, then score the test transactions with the stage 2 model.
 Seeds are fixed, so a re-run gives the same file. About 10 minutes on a 4-core laptop.
 """
 import subprocess
 import sys
 
 PY = sys.executable
+MODULES = "local,episodes,isolation,patterns,shape"
 STEPS = [
-    [PY, "-m", "src.predict", "--tag", "final_stage1", "--modules", "local", "--seeds", "3"],
-    [PY, "-m", "src.stage2", "--tag", "final_stage2", "--modules", "local,episodes", "--seeds", "3", "--predict"],
-    [PY, "-m", "src.blend", "--out", "final", "submissions/final_stage1.csv", "submissions/final_stage2.csv"],
+    [PY, "-m", "src.stage2", "--tag", "final", "--modules", MODULES, "--seeds", "2", "--predict"],
 ]
 
 if __name__ == "__main__":
