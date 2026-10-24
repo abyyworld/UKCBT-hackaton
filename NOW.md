@@ -48,9 +48,10 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | 6 | v13 stage 2 + patterns + shape (OOF 63.81) | 68.5 | 92% |
 | 7 | v16 blend v13 + v14 | **68.6** | 92% |
 
-| 8 | **v17: real-vs-look-alike motif model + stage 2 on v13 features (OOF 67.47, medium 17.8)** | pending | |
+| 8 | **v17: real-vs-look-alike motif model + stage 2 on v13 features (OOF 67.47, medium 17.8)** | **69.1** | 93% |
 
 LB is about OOF + 5.7, but differences under about 1 point are noise.
+**Warning:** OOF is getting optimistic for stacked models (OOF to LB gap: v2 +5.7, v13 +4.7, v17 only +1.6). Prefer simple, robust gains; the leaderboard decides.
 **New base from 13:12: v17 (`python run.py`, which calls `scripts/realmotif_run.py`).** Leader: 68.7 (10% of medium in their top 1%, we have 0%).
 **v13 = new base for everyone: `--modules local,episodes,isolation,patterns,shape`, stage 2, 2 seeds.
 OOF stage 1 61.23, stage 2 63.81 (easy 79.2, medium 10.0, hard 2.1). `python run.py` reproduces it.**
