@@ -3,6 +3,7 @@
     python -m src.cv [--modules local,paths] [--refresh name] [--tag v1]
 """
 import argparse
+import json
 import os
 
 import lightgbm as lgb
@@ -22,6 +23,7 @@ SAMPLE_WEIGHT = None  # set by training_frame, aligned with the training rows
 PARAMS = dict(objective="binary", learning_rate=0.03, num_leaves=31, min_child_samples=20,
               feature_fraction=0.7, bagging_fraction=0.8, bagging_freq=1, lambda_l2=1.0,
               n_estimators=700, verbose=-1, n_jobs=4)
+PARAMS.update(json.loads(os.environ.get("LGB_PARAMS", "{}")))  # e.g. LGB_PARAMS='{"learning_rate": 0.015}'
 
 
 def training_frame(modules=None, refresh=None):
