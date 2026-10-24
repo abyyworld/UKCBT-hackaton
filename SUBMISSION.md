@@ -63,4 +63,4 @@ To measure our validation score (grouped 5-fold out-of-fold average precision on
   Single members on the leaderboard: v17 69.2, v17r 69.0, v28 68.8, v26 68.8.
 - Note: v26 was built from an earlier pseudo-labelling run, so a fresh `run.py` gives a file that is very close to,
   but not byte-identical with, the uploaded one (rank correlation of v26 with the documented recipe 0.99).
-- Commit: `e896834`
+- Commit: `9dce39e`
