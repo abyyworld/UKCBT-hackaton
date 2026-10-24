@@ -32,10 +32,17 @@ No outside data, labels, pre-trained models or paid services were used.
 
 The rules require us to disclose every AI tool and model. Prompts are summarised in the report (`report/`).
 
-| Who | Tool | Model | What it did |
-|---|---|---|---|
-| Aby | TODO: tool | TODO: model | Wrote most of the pipeline in `src/` (loading, features, cross-validation, prediction) from our instructions |
-| Partner | Claude Code (Anthropic), cloud sessions: one main session plus two parallel helper sessions | TODO: model name | Data exploration of the labelled training set, feature experiments in `explore/` (relay hubs, medium cases, motif shape, pseudo-labelling, model settings and blends, train vs test shift), `LICENSE`, this file, `SUBMISSION.md`, the slides, and setup help |
+| Who | Session | Tool | Model | What it did |
+|---|---|---|---|---|
+| Aby | Main session | TODO: tool | TODO: model | Pipeline in `src/` (loading, features, cross-validation, prediction), combining results, uploads, `run.py` |
+| Aby | Second session | TODO: tool | TODO: model | Stage 2 collective scoring (`src/stage2.py`) |
+| Aby | Hunter 1 | TODO: tool | TODO: model | Hard relay case features (`src/features/hardrelay.py`) |
+| Aby | Hunter 2 | TODO: tool | TODO: model | Hub traffic features (`src/features/hubs.py`) |
+| Aby | Alternative method session | TODO: tool | TODO: model | Whole-scheme model for blending (`scripts/scheme_model.py`) |
+| Partner | Main session | Claude Code (Anthropic), cloud | TODO: model | Data exploration, experiments in `explore/` (relay hubs, medium cases, squares, group classifier, pseudo-labelling coordination, model settings and blends, train vs test shift), reproducibility checks, `LICENSE`, `TEAM.md`, this file, `SUBMISSION.md`, slides and examples |
+| Partner | Helper 1 | Claude Code (Anthropic), cloud | TODO: model | Motif shape features (`src/features/shape.py`), medium slow motifs |
+| Partner | Helper 2 | Claude Code (Anthropic), cloud | TODO: model | Pseudo-labelling check (`explore/pseudo.py`), medium wallet reuse |
+| Partner | Helper 3 | Claude Code (Anthropic), cloud | TODO: model | Medium value matching |
 
 We reviewed and ran all AI-written code ourselves and can explain how it works. Out-of-fold scores were measured
 by running the code, not reported by the AI.
