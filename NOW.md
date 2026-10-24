@@ -21,7 +21,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Task | Owner | Status | Files |
 |---|---|---|---|
 | Local, episode and fingerprint features | Aby | done | `src/features/local.py`, `episodes.py`, `fingerprint.py` |
-| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | done 15:00, final summary in `## Stage 2 second session` below. Pick: v13c | `src/stage2.py` |
+| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | done 15:37. Last pick: v13cf (consistent stage 2 + first-time-pair neighbour sums), see `## Stage 2 second session` | `src/stage2.py` |
 | Hard relay cases hunter | Aby, hunter session 1 | in progress, report by 14:45 | `src/features/hardrelay.py`, `explore/HARD.md` |
 | Normal hub down-ranking (to lift medium) | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/hubs.py`, `explore/MEDIUM2.md` |
 | Alternative method: whole-scheme classifier (rebuild schemes, score each scheme, map to payments) | Aby, alt session | in progress, due 14:40 | `scripts/scheme_model.py` |
@@ -102,3 +102,10 @@ Uploaded for LB: pending. Next: more pattern windows (v14).
 - If the LB still prefers v17 over v13c, trust the LB for the final pick. The nested holdout is also an approximation: held-out payments have training payments as neighbours.
 - Tried and dropped (noise or worse): low-score neighbour counts and fractions, wallet history profiles, suspect-cluster isolation, round 2, LightGBM settings (learning rate, leaves, min child samples, feature fraction), test scores from fold models instead of a full fit (no change on the nested holdout).
 - Nested holdout scripts are not committed (scratch only). Ask the second session if you need them.
+
+### Update 15:37 (second session): v13cf
+- `--extra ftp` adds sum, count and mean of stage-1 scores over other first-time-pair payments sharing a wallet within 2 h, 4 h and 8 h (lead from the main session's diffusion run), fold-consistent.
+- Cohort folds, 2 seeds: 61.96 vs v13c 61.28 (seed0 60.28 vs 59.51, seed1 62.21 vs 61.95), medium 11.05 vs 9.91. Default folds: 63.01 vs 62.34 (seed0 63.40 vs 62.45, seed1 61.70 vs 61.47), medium 11.71 vs 9.72. Stage 1 identical, so the gain is the new feature.
+- Command (about 6 min, writes `submissions/v13cf.csv`): `python -m src.stage2 --tag v13cf --modules local,episodes,isolation,patterns,shape --sub none --seeds 2 --consistent --extra ftp --predict --testpred folds`
+- Dropped under cohort folds: directional in/out scores (`--extra dir`, 61.60, seed1 worse), wallet whole-week profile (60.80, worse on both seeds).
+- LB so far: v13c 68.9, v17 69.2, best blend 70.2. v13cf is meant as a blend member built differently (leak-free).
