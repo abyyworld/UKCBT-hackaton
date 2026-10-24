@@ -1,0 +1,10 @@
+data/
+*.parquet
+labels.csv
+market_rates.csv
+submissions/
+*.zip
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+.env
