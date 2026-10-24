@@ -88,3 +88,14 @@ folds grouped by scenario. Group AUC 0.72 overall, **0.97 for groups of 3 or mor
 score into v13 out-of-fold (sum, product, rank mix) never beats v13 (best 63.40 vs 63.81): the stage 1 and stage 2
 features already carry the same information. Headroom check on v13 out-of-fold: pushing the normal look-alike
 scenario payments (about 1,000 rows) to the bottom would lift AP from 63.8 to 78.6; perfect medium alone to 76.9.
+
+## Three more checks on v13 out-of-fold (all dead ends)
+- **Fund provenance for hard relays:** share of a relay payment's upstream inflows (sender, 6 h to 7 days before) or
+  downstream outflows that are easy or medium suspicious payments: AUC 0.46 to 0.51 at every horizon. The relay money
+  does not come from or go to other planted schemes.
+- **Where the top false positives are:** in v13's top 400, 83 of 94 negatives are look-alike scenarios that are as
+  fast as laundering (whole motif in 20 minutes or less); 9 are 20 to 60 minutes; 2 are background. Pushing every
+  slower look-alike to the bottom would only reach 67.7 from 63.8; the fast look-alikes hold the rest.
+- **Medium schemes are not isolated:** during a medium scheme its wallets make 11.1 other payments on average against
+  11.3 expected from their weekly rate (easy: 0.6 vs 0.6, so isolation is not a medium signal either).
+- **Demoting all relay traffic** (oracle, true family known): best +1.0 (scores x0.3). Not worth a model.
