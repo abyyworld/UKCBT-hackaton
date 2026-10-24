@@ -15,6 +15,9 @@ RRF (reciprocal rank fusion, k = 60) is written as a fourth, standard top-heavy 
     python scripts/fuse.py --p 3 --files submissions/v17.csv,submissions/v28.csv
 """
 import argparse
+import glob
+import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -50,11 +53,19 @@ def save(path, hashes, raw, base):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--files", default=",".join(f"submissions/{m}.csv" for m in MEMBERS))
+    ap.add_argument("--files", default="")
     ap.add_argument("--weights", default="")
     ap.add_argument("--p", default="0.5,2,4")
     args = ap.parse_args()
-    files = args.files.split(",")
+    found = sorted(glob.glob("submissions/*.csv") + glob.glob("*.csv") + glob.glob("data/**/*.csv", recursive=True))
+    print("csv files found:", *found, sep="\n  ")
+    if args.files:
+        files = args.files.split(",")
+    else:
+        files = [f"submissions/{m}.csv" for m in MEMBERS if os.path.exists(f"submissions/{m}.csv")]
+        print("using members:", files)
+    if len(files) < 2:
+        sys.exit("need at least 2 member files: pass --files a.csv,b.csv,... from the list above")
     weights = np.array([float(x) for x in args.weights.split(",")] if args.weights else [1.0] * len(files))
     subs = [pd.read_csv(f).set_index("TRANSACTION_HASH")["score"] for f in files]
     hashes = subs[0].index.to_numpy()
