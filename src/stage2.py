@@ -121,19 +121,111 @@ def fold_models_scores(X, y, groups, seed=0, mask=None, X_test=None, n_splits=5)
     return P, fold, test
 
 
-def consistent_collective(txs, P, fold, prefix=""):
+def consistent_collective(txs, P, fold, prefix="", fn=None):
     """Collective features where row i's neighbours are all scored by the fold model that never saw i's fold.
     Plain OOF scores leak: a normal payment on a planted wallet sits in another fold, so its OOF score comes from a
     model that learned the planted payments next to it, and stage 2 learns to trust that leaked neighbour score."""
+    fn = fn or collective_features
     out = None
     for k in range(P.shape[1]):
-        f = collective_features(txs, P[:, k], prefix)
+        f = fn(txs, P[:, k], prefix)
         if out is None:
             out = f.copy()
         rows = fold == k
         out.iloc[rows] = f.iloc[rows].to_numpy()
     return out
 
+
+FTP_WINDOWS = [7200, 14400, 28800]
+
+
+def ftp_features(txs, score, prefix=""):
+    """Sum, count and mean of stage-1 scores over the OTHER first-time-pair payments that share a wallet (either role)
+    with this one within +-W. Slow (medium) schemes are made of first-time pairs, so their payments have many
+    scored first-time-pair neighbours, while normal payments have few."""
+    txs = txs.reset_index(drop=True)
+    n = len(txs)
+    t = txs["ts"].to_numpy().astype(float)
+    s, r = txs["sender"].to_numpy(), txs["receiver"].to_numpy()
+    pair = pd.Series(list(zip(s, r)))
+    pn = (pair.map(pair.value_counts()) == 1).to_numpy().astype(float)
+    f = pd.DataFrame(index=txs["tx"].to_numpy())
+    sm = np.asarray(score, float) * pn
+    for W in FTP_WINDOWS:
+        ss, _ = _wallet_window_mean(np.r_[s, r], np.r_[t, t], np.r_[sm, sm], W)
+        cc, _ = _wallet_window_mean(np.r_[s, r], np.r_[t, t], np.r_[pn, pn], W)
+        tot, cnt = ss[:n] + ss[n:], cc[:n] + cc[n:]
+        f[f"ftp_sum_{W}"] = tot
+        f[f"ftp_cnt_{W}"] = cnt
+        f[f"ftp_mean_{W}"] = np.where(cnt > 0, tot / np.maximum(cnt, 1), np.nan)
+    return f.add_prefix(prefix)
+
+
+DIR_WINDOWS = [3600, 21600]
+
+
+def _range_max(vals, lo, hi):
+    """max(vals[lo:hi]) for each query (sparse table), NaN where the range is empty."""
+    n = len(vals)
+    out = np.full(len(lo), np.nan)
+    L = hi - lo
+    ok = L > 0
+    if n == 0 or not ok.any():
+        return out
+    st = [vals]
+    j = 1
+    while (1 << j) <= n:
+        prev = st[-1]
+        h = 1 << (j - 1)
+        st.append(np.maximum(prev[:-h], prev[h:]) if len(prev) > h else prev[:0])
+        j += 1
+    idx = np.flatnonzero(ok)
+    k = np.floor(np.log2(L[idx])).astype(int)
+    for kk in np.unique(k):
+        sel = idx[k == kk]
+        a = st[kk]
+        out[sel] = np.maximum(a[lo[sel]], a[hi[sel] - (1 << kk)])
+    return out
+
+
+def directional_features(txs, score, prefix=""):
+    """Stage-1 scores by direction instead of pooled: payments into the sender before this one, out of the receiver
+    after it, out of the sender after it and into the receiver before it, within 1 h and 6 h (mean, max, count)."""
+    txs = txs.reset_index(drop=True)
+    t = txs["ts"].to_numpy().astype(float)
+    codes, _ = pd.factorize(np.r_[txs["sender"].to_numpy(), txs["receiver"].to_numpy()])
+    n = len(t)
+    sc_, rc_ = codes[:n].astype(float), codes[n:].astype(float)
+    t0 = t - t.min()
+    span = t0.max() + 4 * max(DIR_WINDOWS) + 10.0
+    score = np.asarray(score, float)
+
+    def events(wcode):
+        key = wcode * span + t0
+        o = np.argsort(key, kind="stable")
+        return key[o], score[o], np.r_[0.0, np.cumsum(score[o])]
+
+    ev = {"in": events(rc_), "out": events(sc_)}
+    f = pd.DataFrame(index=txs["tx"].to_numpy())
+    specs = [("in_s_bef", "in", sc_, "before", True), ("out_r_aft", "out", rc_, "after", True),
+             ("out_s_aft", "out", sc_, "after", False), ("in_r_bef", "in", rc_, "before", False)]
+    for W in DIR_WINDOWS:
+        for name, e, qw, d, with_cnt in specs:
+            k, v, cs = ev[e]
+            q = qw * span + t0
+            if d == "before":
+                lo, hi = np.searchsorted(k, q - W, "left"), np.searchsorted(k, q, "left")
+            else:
+                lo, hi = np.searchsorted(k, q, "right"), np.searchsorted(k, q + W, "right")
+            cnt = hi - lo
+            f[f"{name}_{W}_mean"] = np.where(cnt > 0, (cs[hi] - cs[lo]) / np.maximum(cnt, 1), np.nan)
+            f[f"{name}_{W}_max"] = _range_max(v, lo, hi)
+            if with_cnt:
+                f[f"{name}_{W}_cnt"] = cnt
+    return f.add_prefix(prefix)
+
+
+EXTRA = {"ftp": ftp_features, "dir": directional_features}
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
@@ -148,6 +240,8 @@ if __name__ == "__main__":
     ap.add_argument("--consistent", action="store_true",
                     help="fold-consistent collective features (no neighbour-score leak); stage 2 then uses one "
                          "stage-1 fold split per seed")
+    ap.add_argument("--extra", default="",
+                    help="with --consistent: extra collective features on the stage-1 score (comma list of EXTRA keys)")
     ap.add_argument("--testpred", default="full", choices=["full", "folds"],
                     help="score test with models fit on all of train (full) or with the mean of the fold models")
     args = ap.parse_args()
@@ -184,12 +278,15 @@ if __name__ == "__main__":
                     s1_oof = P[np.arange(len(y)), fold]
                     report(s1_oof, lab, f"{args.tag} stage1 seed{sd}")
                     s1_test = te
-                parts.append(consistent_collective(train_txs, P, fold, f"{k}_"))
+                fns = [collective_features] + ([EXTRA[e] for e in args.extra.split(",") if e] if k == "susp" else [])
+                for fn in fns:
+                    parts.append(consistent_collective(train_txs, P, fold, f"{k}_", fn))
                 if args.predict:
                     if args.testpred == "full":
                         keep = np.ones(len(y), bool) if m is None else m
                         te = fit_predict(X[keep], tgt[k][keep], X_test, 1)
-                    parts_t.append(collective_features(test_txs, te, f"{k}_"))
+                    for fn in fns:
+                        parts_t.append(fn(test_txs, te, f"{k}_"))
             X2 = pd.concat(parts, axis=1)
             o, _ = oof_and_test(X2, y, groups, sd)
             oof2 += o / args.seeds
