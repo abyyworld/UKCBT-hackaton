@@ -15,6 +15,9 @@
 - Use your own AI to explore `labels.csv` against the transactions. What do suspicious flows look like (shapes, timing,
   amounts, conversions)? Focus on the **hard** ones.
 - Send findings as one-line feature ideas, e.g. "collector forwards >90% within 10 min".
+- Push your code to `explore/` and your slides to `report/`, so we never edit the same files.
+- **Every idea gets tested against local AP.** It stays only if it raises the score without leaking labels.
+  Anything else is fixed or dropped.
 - Start the slides early (fewer than 10): problem, data, features, model, validation, results, limitations, AI disclosure.
 
 ## Timeline
