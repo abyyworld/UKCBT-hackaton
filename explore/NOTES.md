@@ -128,3 +128,15 @@ slow look-alikes (span over 20 min), 224 background and 46 fast look-alikes. Ora
 family known): relay negatives x0.3 gives ALL 69.06 (medium 20.2); relay plus slow look-alikes x0.3 gives 69.16
 (medium 22.6), from 67.47 (17.8). So even perfect removal of the competitors is worth under +2; a real classifier
 maybe +0.3 to +0.8. Families least caught: random (median rank 4,257), multi_stage (1,589), chain, cycle.
+
+## Human look at the raw data (no training)
+- Hard relays: 12 cohorts, each exactly 100 near-identical relay scenarios with exactly one laundering scenario.
+  Ranked against its own 99 siblings, the laundering one sits mid-pack on 17 stats (size, amounts, timing, gaps,
+  senders and receivers, assets, conversions, hour, days, pairs seen before, reused pairs, pairs in other scenarios,
+  wallet reuse, prior activity). No within-cohort edge found.
+- Motif look-alikes use the same size menu as laundering (4, 6, 8, 12, 16 payments) but are not paired twins: the
+  nearest same-family look-alike in time shares no wallets and has the same size only 28% of the time.
+- No leaks: row order in transactions.parquet (AUC 0.48) and labels.csv (0.53), hash characters, address format,
+  SEQUENCE gaps (always 1), fee, memos, flags, LAST_LEDGER_SEQUENCE, SendMax slack, ledger position and block
+  metadata are all uninformative (0.55 or below). Blocks: 151,200 ledgers, 33,389 non-empty; empty ones carry the
+  SHA-256 of an empty string.

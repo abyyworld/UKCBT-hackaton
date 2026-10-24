@@ -202,7 +202,7 @@ pres.addSection({ title: "Close" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Close" });
 s.addText("Limits, next steps and how we built it", { placeholder: "title" });
 card(s, 0.5, 1.2, 4.4, 3.8, "Limits and next steps",
-  "Synthetic data: a high score here proves nothing about real crime.\n\nHard relay cases (16% of suspicious) are built from the same template as 19,800 normal ones; about 20 signals we tried stayed at chance. 25 labels are random by design.\n\nTest contains variations absent from training (amounts look less even). Next: validation that holds out whole batches, more labels for slow schemes.",
+  "Synthetic data: a high score here proves nothing about real crime.\n\nHard relay cases (16% of suspicious) come in 12 batches of 100 near-identical relay scenarios with exactly one laundering per batch; even against its 99 siblings it looks ordinary on every stat we tried. 25 labels are random by design.\n\nTest contains variations absent from training (amounts look less even). Next: validation that holds out whole batches, more labels for slow schemes.",
   { bodySize: 13 });
 card(s, 5.1, 1.2, 4.4, 3.8, "AI use and reproducibility",
   "AI coding assistants (Claude Code and others, listed with models in ATTRIBUTION.md) helped write code and run experiments; every score comes from our own runs.\n\npython run.py rebuilds the upload file from raw data in about 8 minutes on a 4-core machine, fixed seeds, checked twice from an empty cache.\n\nMIT licence. No outside data.",

@@ -122,7 +122,9 @@ pass-through: none of its payments reach our top 1% (best rank 1,975).
 - **Hard relay cases are out of reach.** 200 suspicious relay transactions sit among 19,800 normal ones built from
   the same template. We tested about 15 signals (sender recurrence, burst overlap, onward chains, repeated paths,
   amount trends, timing, assets) at transaction and whole-scenario level: none beat AUC 0.57. Their wallets are
-  ordinary wallets (about 92% of each one's activity is normal).
+  ordinary wallets (about 92% of each one's activity is normal). They come in 12 batches of 100 near-identical relay
+  scenarios with exactly one laundering per batch, and even against its own 99 siblings the laundering one is
+  ordinary on size, amounts, timing, assets and relationship history.
 - 25 more hard labels are random by design. Together this caps any honest model at roughly AP 82.
 - The test set has variations absent from training. TODO: what we did about it.
 - Next: more labels for the hard cases, longer history than one week, account-level models.
