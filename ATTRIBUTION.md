@@ -23,7 +23,7 @@ Installed from `requirements.txt`. None of them are shipped in the ZIP.
   <https://hackathon.ukcbt.org/>. It is synthetic and fictional. We do not ship it; see `SUBMISSION.md` for where to
   put it.
 - **`payments.py` and `starter_notebook.ipynb`** are organiser files. We read them to learn the data format.
-  TODO: say here whether any of our code copies from them.
+  None of our code is copied from them.
 - **Training decks** in `training/`: the XRPL Commons deck is CC BY-SA and credited to XRPL Commons.
 
 No outside data, labels, pre-trained models or paid services were used.
@@ -34,15 +34,15 @@ The rules require us to disclose every AI tool and model. Prompts are summarised
 
 | Who | Session | Tool | Model | What it did |
 |---|---|---|---|---|
-| Aby | Main session | TODO: tool | TODO: model | Pipeline in `src/` (loading, features, cross-validation, prediction), combining results, uploads, `run.py` |
-| Aby | Second session | TODO: tool | TODO: model | Stage 2 collective scoring (`src/stage2.py`) |
-| Aby | Hunter 1 | TODO: tool | TODO: model | Hard relay case features (`src/features/hardrelay.py`) |
-| Aby | Hunter 2 | TODO: tool | TODO: model | Hub traffic features (`src/features/hubs.py`) |
-| Aby | Alternative method session | TODO: tool | TODO: model | Whole-scheme model for blending (`scripts/scheme_model.py`) |
-| Partner | Main session | Claude Code (Anthropic), cloud | TODO: model | Data exploration, experiments in `explore/` (relay hubs, medium cases, squares, group classifier, pseudo-labelling coordination, model settings and blends, train vs test shift), reproducibility checks, `LICENSE`, `TEAM.md`, this file, `SUBMISSION.md`, slides and examples |
-| Partner | Helper 1 | Claude Code (Anthropic), cloud | TODO: model | Motif shape features (`src/features/shape.py`), medium slow motifs |
-| Partner | Helper 2 | Claude Code (Anthropic), cloud | TODO: model | Pseudo-labelling check (`explore/pseudo.py`), medium wallet reuse |
-| Partner | Helper 3 | Claude Code (Anthropic), cloud | TODO: model | Medium value matching |
+| Aby | Main session | Claude Code (Anthropic), cloud | Claude (Anthropic) | Pipeline in `src/` (loading, features, cross-validation, prediction), combining results, uploads, `run.py` |
+| Aby | Second session | Claude Code (Anthropic), cloud | Claude (Anthropic) | Stage 2 collective scoring (`src/stage2.py`) |
+| Aby | Hunter 1 | Claude Code (Anthropic), cloud | Claude (Anthropic) | Hard relay case features (`src/features/hardrelay.py`) |
+| Aby | Hunter 2 | Claude Code (Anthropic), cloud | Claude (Anthropic) | Hub traffic features (`src/features/hubs.py`) |
+| Aby | Alternative method session | Claude Code (Anthropic), cloud | Claude (Anthropic) | Whole-scheme model for blending (`scripts/scheme_model.py`) |
+| Partner | Main session | Claude Code (Anthropic), cloud | Claude (Anthropic) | Data exploration, experiments in `explore/` (relay hubs, medium cases, squares, group classifier, pseudo-labelling coordination, model settings and blends, train vs test shift), reproducibility checks, `LICENSE`, `TEAM.md`, this file, `SUBMISSION.md`, slides and examples |
+| Partner | Helper 1 | Claude Code (Anthropic), cloud | Claude (Anthropic) | Motif shape features (`src/features/shape.py`), medium slow motifs |
+| Partner | Helper 2 | Claude Code (Anthropic), cloud | Claude (Anthropic) | Pseudo-labelling check (`explore/pseudo.py`), medium wallet reuse |
+| Partner | Helper 3 | Claude Code (Anthropic), cloud | Claude (Anthropic) | Medium value matching |
 
 We reviewed and ran all AI-written code ourselves and can explain how it works. Out-of-fold scores were measured
 by running the code, not reported by the AI.

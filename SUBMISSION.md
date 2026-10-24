@@ -32,7 +32,7 @@ data/decode-and-detect-test-data/transactions.parquet
 ```
 
 This writes `submissions/final.csv`: one row per test transaction (40,101 rows), columns `TRANSACTION_HASH,score`.
-It builds five models and rank-averages them with `src/blend.py` (see the docstring of `run.py`):
+It builds six models and rank-averages them with `src/blend.py` (see the docstring of `run.py`):
 
 | Member | What it is | Script |
 |---|---|---|
@@ -41,6 +41,7 @@ It builds five models and rank-averages them with `src/blend.py` (see the docstr
 | v17r | v17 without the amount-evenness features | `explore/robust_run.py` |
 | v26 | rank average of v17 and a pseudo-labelling model cross-fitted on the unlabelled test week | `scripts/pseudo_adapt.py` |
 | scheme | scores whole candidate schemes and passes the score to their payments | `scripts/scheme_model.py` |
+| v13cf | stage 1 plus a fold-consistent stage 2 with first-time-pair neighbour scores | `src/stage2.py --consistent --extra ftp` |
 
 Features: `local, episodes, isolation, patterns, shape` (and `slow` for v28). Each model is averaged over 2 seeds.
 `python run.py --single` builds only v17 (about 10 minutes).
@@ -56,6 +57,10 @@ To measure our validation score (grouped 5-fold out-of-fold average precision on
 
 ## 4. Results
 
-- Out-of-fold AP (grouped 5-fold): TODO
-- Leaderboard score of the submitted file: TODO
+- Out-of-fold AP (grouped 5-fold) of the members: v17 67.47 (stage 2 slightly optimistic, see `NOW.md`), v13cf
+  61.96 with cohort-grouped folds (honest stage 2), scheme 60.39.
+- Leaderboard score of the submitted file: **70.3** (rank blend of v17, v28, v17r, v26, scheme and v13cf).
+  Single members on the leaderboard: v17 69.2, v17r 69.0, v28 68.8, v26 68.8.
+- Note: v26 was built from an earlier pseudo-labelling run, so a fresh `run.py` gives a file that is very close to,
+  but not byte-identical with, the uploaded one (rank correlation of v26 with the documented recipe 0.99).
 - Commit: `e896834`

@@ -1,6 +1,6 @@
 """One command from the raw data to the upload file.
 
-    python run.py            # writes submissions/final.csv (the submitted rank blend, about 45 minutes)
+    python run.py            # writes submissions/final.csv (the submitted rank blend, about 50 minutes)
     python run.py --single   # writes submissions/final.csv from the v17 model alone (about 10 minutes)
 
 The submitted file is a rank average of differently built models. Each one is trained on train only, scores the test
@@ -13,6 +13,7 @@ week, and is written to submissions/<tag>.csv; src/blend.py then averages their 
 - v26: rank average of v17 and a test-week pseudo-labelling model cross-fitted on test (scripts/pseudo_adapt.py).
 - scheme: a scheme-level model that scores candidate schemes and passes the score to their payments
   (scripts/scheme_model.py).
+- v13cf: stage 1 plus a fold-consistent stage 2 with first-time-pair neighbour scores (src/stage2.py --extra ftp).
 Seeds are fixed, so a re-run gives the same file.
 """
 import os
@@ -22,7 +23,7 @@ import sys
 PY = sys.executable
 SUB = "submissions"
 RANK_SLOW = {"SPLIT_RANK": "1", "MODULES": "local,episodes,isolation,patterns,shape,slow"}
-MEMBERS = ["v17", "v28", "v17r", "v26", "scheme"]
+MEMBERS = ["v17", "v28", "v17r", "v26", "scheme", "v13cf"]
 STEPS = [
     ({}, [PY, "scripts/realmotif_run.py", "--tag", "v17", "--seeds", "2"]),
     (RANK_SLOW, [PY, "scripts/robust2_run.py", "--tag", "v28", "--seeds", "2"]),
@@ -30,6 +31,8 @@ STEPS = [
     ({}, [PY, "scripts/pseudo_adapt.py", "--base", "v17"]),
     ({}, [PY, "-m", "src.blend", "--out", "v26", f"{SUB}/v17.csv", f"{SUB}/pseudo.csv"]),
     ({}, [PY, "scripts/scheme_model.py"]),
+    ({}, [PY, "-m", "src.stage2", "--tag", "v13cf", "--modules", "local,episodes,isolation,patterns,shape", "--sub", "none",
+          "--seeds", "2", "--consistent", "--extra", "ftp", "--predict", "--testpred", "folds"]),
     ({}, [PY, "-m", "src.blend", "--out", "final"] + [f"{SUB}/{m}.csv" for m in MEMBERS]),
 ]
 SINGLE = [({}, [PY, "scripts/realmotif_run.py", "--tag", "final", "--seeds", "2"])]
