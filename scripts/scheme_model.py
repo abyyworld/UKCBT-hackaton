@@ -2,9 +2,10 @@
 
     python scripts/scheme_model.py
 
-1. For every payment (the anchor) build a candidate scheme at six scales: all payments that share a wallet with
-   the anchor, or with a payment that does (two hops), inside a time window around the anchor. Scales: all payments
-   within 60s, 300s, 900s; first-time wallet pairs only within 30m, 1h, 2h.
+1. For every payment (the anchor) build a candidate scheme at 13 scales: all payments that share a wallet with
+   the anchor, or with a payment that does (two hops), inside a time window around the anchor. Two hops: all payments
+   within 60s, 300s, 900s; first-time wallet pairs only within 30m, 1h, 2h. One hop: first-time pairs within 1h, 2h,
+   3h; all payments within 300s, 900s, 30m, 1h.
 2. Describe each scheme: size, span, gaps, wallets, in and out degrees, pass-through wallets, value kept per hop,
    amount drift, conversions, assets, isolation (the wallets' other activity during the scheme), new wallets, hour.
 3. Train a LightGBM scheme classifier per scale (target: the anchor's label), grouped folds by scenario.
@@ -32,7 +33,11 @@ from src.predict import write
 SEED = 0
 N_FOLDS = 5
 SCALES = [("all60", False, 60), ("all300", False, 300), ("all900", False, 900),
-          ("first30m", True, 1800), ("first1h", True, 3600), ("first2h", True, 7200)]
+          ("first30m", True, 1800), ("first1h", True, 3600), ("first2h", True, 7200),
+          # one hop only: the anchor's own wallets, purer for slow schemes
+          ("h1_first1h", True, 3600, 1), ("h1_first2h", True, 7200, 1), ("h1_first3h", True, 10800, 1),
+          ("h1_all300", False, 300, 1), ("h1_all900", False, 900, 1), ("h1_all1800", False, 1800, 1),
+          ("h1_all3600", False, 3600, 1)]
 SCHEME_PARAMS = dict(objective="cross_entropy", learning_rate=0.05, num_leaves=31, min_child_samples=30,
                      feature_fraction=0.7, bagging_fraction=0.8, bagging_freq=1, lambda_l2=1.0,
                      n_estimators=400, verbose=-1, n_jobs=4)
@@ -80,7 +85,7 @@ def prepare(txs):
     return t
 
 
-def candidates(t, first_only, w):
+def candidates(t, first_only, w, hops=2):
     """(anchor, member) pairs: payments within +-w of the anchor reachable within two wallet hops."""
     sub = np.where(t["first"].to_numpy())[0] if first_only else np.arange(len(t))
     ts = t["ts"].to_numpy()
@@ -102,6 +107,8 @@ def candidates(t, first_only, w):
     anchors = sub
     a1, m1 = hop(np.r_[anchors, anchors], np.r_[s[anchors], r[anchors]].astype(np.int64))
     one = pd.DataFrame({"a": np.r_[anchors, a1], "m": np.r_[anchors, m1]}).drop_duplicates()
+    if hops == 1:
+        return one.sort_values(["a", "m"]).reset_index(drop=True)
     a, m = one["a"].to_numpy(), one["m"].to_numpy()
     a2, m2 = hop(np.r_[a, a], np.r_[s[m], r[m]].astype(np.int64))
     pairs = pd.DataFrame({"a": np.r_[a, a2], "m": np.r_[m, m2]}).drop_duplicates()
@@ -221,8 +228,8 @@ def build(name):
     txs, _ = load_split(name)
     t = prepare(txs)
     feats, members = {}, {}
-    for scale, first_only, w in SCALES:
-        pairs = candidates(t, first_only, w)
+    for scale, first_only, w, *hops in SCALES:
+        pairs = candidates(t, first_only, w, *hops)
         feats[scale] = scheme_features(t, pairs)
         members[scale] = pairs
         log(f"{name} {scale}: {len(feats[scale])} schemes, {len(pairs)} memberships, "
@@ -267,7 +274,7 @@ def main():
     # stage 1: scheme classifiers. For fold k the model never sees anchors of fold k, and fold-k payments
     # read scheme scores only from that model.
     tr_parts, te_parts = [], []
-    for scale, _, _ in SCALES:
+    for scale, *_ in SCALES:
         f, ft = tr_f[scale], te_f[scale][tr_f[scale].columns]
         ya, fa = y[f.index], fold[f.index]
         per_fold = []
