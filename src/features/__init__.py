@@ -31,4 +31,7 @@ def build_split(split, modules=None, refresh=False):
             part.to_parquet(path)
         parts.append(part)
     X = pd.concat(parts, axis=1)
+    if os.environ.get("SPLIT_RANK"):
+        # each feature as a percentile within its own week: neutralises week-wide shifts between train and test
+        X = X.rank(pct=True)
     return txs, X.loc[txs["tx"].to_numpy()]
