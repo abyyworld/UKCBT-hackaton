@@ -7,6 +7,9 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 |---|---|---|---|
 | Local, episode and fingerprint features | Aby | done | `src/features/local.py`, `episodes.py`, `fingerprint.py` |
 | Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress | `src/stage2.py` |
+| Hard relay cases hunter | Aby, hunter session 1 | in progress, report by 14:45 | `src/features/hardrelay.py`, `explore/HARD.md` |
+| Medium slow-scheme hunter | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/slowmotif.py`, `explore/MEDIUM2.md` |
+| Final blend of best variants (v13, v14, v15, stage 2 real-vs-look-alike) | Aby | in progress | `src/blend.py`, `run.py` |
 | Scheme isolation features (wallets do nothing else during a scheme) | Aby | in progress | `src/features/local.py` |
 | `reason` column, `run.py`, final predictions, uploads, code ZIP | Aby | in progress | `src/predict.py`, `run.py`, `scripts/` |
 | Relay hub features (hard cases) | Partner | done, dropped (no gain) | `explore/relay_chain.py` |
