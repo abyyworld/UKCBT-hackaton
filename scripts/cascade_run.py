@@ -72,6 +72,8 @@ if __name__ == "__main__":
     Xa["v17_score"] = p_tr
     Xb = pd.concat([X_test, collective_features(test_txs, p_te, "b_")], axis=1)
     Xb["v17_score"] = p_te
+    if os.environ.get("CASCADE_NO_COLLECTIVE"):
+        Xa = Xa.drop(columns=[c for c in Xa.columns if c.startswith("b_")])
     Xb = Xb[Xa.columns]
     print(f"features: {Xa.shape[1]}, train {len(Xa)}, test {len(Xb)}")
     report(s_tr, lab, "v17 base")

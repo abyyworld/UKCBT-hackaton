@@ -34,7 +34,7 @@ CYCLE_CAP = 4000
 BIG = 10**8
 
 
-def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag, own_lu):
+def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag, own_lu, links):
     order = np.lexsort((ev_t, ev_wallet))
     key = ev_wallet[order].astype(np.int64) * BIG + ev_t[order]
     lu = ev_lu[order]
@@ -78,6 +78,12 @@ def window_stats(F, role_codes, t, ev_wallet, ev_t, ev_lu, ev_new, tag, own_lu):
     bb = np.clip(b, 0, len(kn) - 1)
     ok = (b < len(kn)) & (kn[bb] // BIG == role_codes)
     F[f"{tag}_gap_next_new"] = np.where(ok, kn[bb] % BIG - t, np.nan)
+    # which payment is the neighbouring one (used for one round of neighbour feature passing)
+    on = order[m]
+    links[f"{tag}_prev"] = np.where(F[f"{tag}_gap_prev"].notna(), order[np.clip(prev_i, 0, None)], -1)
+    links[f"{tag}_next"] = np.where(F[f"{tag}_gap_next"].notna(), order[nxt], -1)
+    links[f"{tag}_prev_new"] = np.where(F[f"{tag}_gap_prev_new"].notna(), on[np.clip(a, 0, None)], -1)
+    links[f"{tag}_next_new"] = np.where(F[f"{tag}_gap_next_new"].notna(), on[bb], -1)
 
 
 def graph_loops(s, r, t):
@@ -243,9 +249,10 @@ def features(split):
 
     # GFP-style windowed vertex statistics
     newf = first.astype(float)
+    links = {}
     for role, codes in (("s", s), ("r", r)):
-        window_stats(F, codes, t, s, t, lu, newf, f"{role}out", lu)
-        window_stats(F, codes, t, r, t, lu, newf, f"{role}in", lu)
+        window_stats(F, codes, t, s, t, lu, newf, f"{role}out", lu, links)
+        window_stats(F, codes, t, r, t, lu, newf, f"{role}in", lu, links)
     # relative amount vs sender's usual
     F["lu_vs_sout_mean86400"] = lu - F["sout_b86400_mean"]
     print(f"[{split}] window features {F.shape[1]} cols, {time.time() - t0:.0f}s", flush=True)
@@ -255,6 +262,17 @@ def features(split):
         F[k] = v
     F["cyc_f_all"] = sum(F[f"cyc_f{L}"] for L in range(2, 6))
     F["cyc_b_all"] = sum(F[f"cyc_b{L}"] for L in range(2, 6))
+    # one round of neighbour passing: copy key features of the payment that moved the money on
+    # (receiver's next outgoing) and of the one that brought it in (sender's previous incoming)
+    pass_cols = ["pair_first", "pair_total_n", "lu", "rout_gap_next_new", "sin_gap_prev_new",
+                 "rin_gap_prev_new", "sout_gap_next_new", "rout_b3600_new", "sin_b3600_new",
+                 "cyc_f_all", "sg_mid7200"]
+    for link in ("rout_next", "rout_next_new", "sin_prev", "sin_prev_new"):
+        idx = links[link]
+        for c in pass_cols:
+            v = F[c].to_numpy(float)
+            F[f"nb_{link}_{c}"] = np.where(idx >= 0, v[np.clip(idx, 0, None)], np.nan)
+        F[f"nb_{link}_dt"] = np.where(idx >= 0, np.abs(t[np.clip(idx, 0, None)] - t), np.nan)
     print(f"[{split}] all features {F.shape[1]} cols, {time.time() - t0:.0f}s", flush=True)
     os.makedirs("data/cache", exist_ok=True)
     F.to_parquet(path)
