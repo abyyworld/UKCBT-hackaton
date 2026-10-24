@@ -58,8 +58,8 @@ def build_units(t):
 
 def outlier(U, coh):
     X = np.log1p(U.clip(lower=0)).fillna(0)
-    z = X.groupby(coh).transform(lambda c: (c - c.median()) / (1.4826 * (c - c.median()).abs().median() + 1e-6)).abs()
-    return z.clip(upper=50).max(axis=1)
+    z = X.groupby(coh).transform(lambda c: (c - c.median()) / np.maximum(1.4826 * (c - c.median()).abs().median(), c.std() + 1e-6)).abs()
+    return pd.Series(np.sort(z.clip(upper=50).to_numpy(), axis=1)[:, -3:].mean(axis=1), index=z.index)
 
 def run_units(t):
     mem = build_units(t)
