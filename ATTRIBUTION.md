@@ -35,7 +35,7 @@ The rules require us to disclose every AI tool and model. Prompts are summarised
 | Who | Tool | Model | What it did |
 |---|---|---|---|
 | Aby | TODO: tool | TODO: model | Wrote most of the pipeline in `src/` (loading, features, cross-validation, prediction) from our instructions |
-| Partner | Claude Code (Anthropic) | TODO: model name | Task planning, submission checks, `LICENSE`, this file, `SUBMISSION.md`, the slide outline, and setup help |
+| Partner | Claude Code (Anthropic), cloud sessions: one main session plus two parallel helper sessions | TODO: model name | Data exploration of the labelled training set, feature experiments in `explore/` (relay hubs, medium cases, motif shape, pseudo-labelling, model settings and blends, train vs test shift), `LICENSE`, this file, `SUBMISSION.md`, the slides, and setup help |
 
 We reviewed and ran all AI-written code ourselves and can explain how it works. Out-of-fold scores were measured
 by running the code, not reported by the AI.
