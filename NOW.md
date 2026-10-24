@@ -38,4 +38,6 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | 5 | v8 stage 2 + episode isolation (OOF 62.35) and v11 blend v2+v7+v8 | 67.5 and 67.1 | 92 to 93% |
 
 LB is about OOF + 5.7, but differences under about 1 point are noise. Leader: 68.7 (10% of medium in their top 1%, we have 0%).
-Next: pattern counts among first-time pairs (scatter-gather alone: medium AP 9.2 vs 0.6% base) in v12.
+**v13 = new base for everyone: `--modules local,episodes,isolation,patterns,shape`, stage 2, 2 seeds.
+OOF stage 1 61.23, stage 2 63.81 (easy 79.2, medium 10.0, hard 2.1). `python run.py` reproduces it.**
+Uploaded for LB: pending. Next: more pattern windows (v14).
