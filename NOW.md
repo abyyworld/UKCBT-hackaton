@@ -33,4 +33,9 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | 1 | v3 blend (stage 1 + stage 2, 50/50) | 66.5 | 94% |
 | 2 | v2 stage 2, local+episodes, 3 seeds (OOF 61.63) | **67.3** | 93% |
 
-LB is about OOF + 5.7. Leader: 68.7.
+| 3 | v7 stage 2 + local isolation features (OOF 61.94) | about 67.5 | 93% |
+| 4 | v9 blend v2 + v7 | **67.6** | 93% |
+| 5 | v8 stage 2 + episode isolation (OOF 62.35) and v11 blend v2+v7+v8 | 67.5 and 67.1 | 92 to 93% |
+
+LB is about OOF + 5.7, but differences under about 1 point are noise. Leader: 68.7 (10% of medium in their top 1%, we have 0%).
+Next: pattern counts among first-time pairs (scatter-gather alone: medium AP 9.2 vs 0.6% base) in v12.
