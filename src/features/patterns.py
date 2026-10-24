@@ -15,7 +15,7 @@ from heapq import heappop, heappush
 import numpy as np
 import pandas as pd
 
-WINDOWS = [7200, 21600]
+WINDOWS = [1800, 3600, 7200, 21600, 43200]
 MAX_DEPTH = 8
 
 
