@@ -120,3 +120,11 @@ scores of two seeds before computing AP. Both are reproducible; compare like wit
   uneven amounts (median CV 0.87 vs 0.71 for the ones it drops). Files: `python -m
   explore.robust_run --tag v17r --seeds 2`, then `python -m src.blend --out v17_v17r_blend submissions/final.csv
   submissions/v17r.csv`. Leaderboard: v17r 69.0 (v17 69.2), so dropping amount-evenness alone did not transfer better.
+
+## Where medium sits in v17 (analysis of out-of-fold scores, no training)
+Medium scenarios are not missed: their median ranks are 1,000 to 1,600, tight within each scenario, just below the
+800 easy positives and fast look-alikes. Ranks 800 to 3,000 hold 173 medium payments among 1,119 relay negatives, 405
+slow look-alikes (span over 20 min), 224 background and 46 fast look-alikes. Oracle demotion inside that band (true
+family known): relay negatives x0.3 gives ALL 69.06 (medium 20.2); relay plus slow look-alikes x0.3 gives 69.16
+(medium 22.6), from 67.47 (17.8). So even perfect removal of the competitors is worth under +2; a real classifier
+maybe +0.3 to +0.8. Families least caught: random (median rank 4,257), multi_stage (1,589), chain, cycle.
