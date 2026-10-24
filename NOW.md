@@ -11,7 +11,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Relay hub features (hard cases) | Partner | done, dropped (no gain) | `explore/relay_chain.py` |
 | Train vs test shift check | Partner | done | `explore/ADV_VAL.md` |
 | LICENSE, ATTRIBUTION, SUBMISSION | Partner | done, update at the end | root files |
-| **Medium-case features (slow motifs)** | Partner | open, next | `src/features/medium.py` |
+| **Medium-case features (slow motifs)** | Partner | in progress | `src/features/medium.py` |
 | Slides | Partner | after medium | `report/` |
 
 ## Current best scores (out-of-fold AP, grouped 5-fold)
