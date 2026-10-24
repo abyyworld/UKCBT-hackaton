@@ -13,6 +13,7 @@ top K are ordered by alpha * rank(cascade) + (1 - alpha) * rank(v17). The cascad
     python scripts/cascade_run.py --tag cascade
 """
 import argparse
+import json
 import os
 import sys
 
@@ -32,6 +33,7 @@ from src.stage2 import collective_features  # noqa: E402
 MODULES = os.environ.get("MODULES", "local,episodes,isolation,patterns,shape,slow").split(",")
 PARAMS = dict(objective="binary", n_estimators=400, learning_rate=0.05, num_leaves=15, min_child_samples=20,
               feature_fraction=0.7, bagging_fraction=0.8, bagging_freq=1, lambda_l2=1.0, verbose=-1, n_jobs=1)
+PARAMS.update(json.loads(os.environ.get("CASCADE_PARAMS", "{}")))
 
 
 def fit_model(X, y, seed=0):
@@ -54,6 +56,7 @@ if __name__ == "__main__":
     ap.add_argument("--base_test", default="submissions/v17_realmotif.csv")
     ap.add_argument("--ks", default="2000,3000,4000")
     ap.add_argument("--alphas", default="0.5,0.75,1.0")
+    ap.add_argument("--dry", action="store_true", help="evaluate only, write nothing")
     args = ap.parse_args()
     X, lab, groups = training_frame(MODULES)
     y = lab["label"].to_numpy()
@@ -97,6 +100,8 @@ if __name__ == "__main__":
     report(final_oof, lab, f"{args.tag} chosen")
     blend = (rankdata(final_oof) + rankdata(s_tr)) / 2
     report(blend, lab, f"{args.tag} 50/50 rank blend with v17")
+    if args.dry:
+        sys.exit(0)
     os.makedirs("data/oof", exist_ok=True)
     pd.DataFrame({"tx": lab.index, "oof": final_oof}).to_parquet(f"data/oof/{args.tag}.parquet")
 
