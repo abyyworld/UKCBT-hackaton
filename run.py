@@ -14,6 +14,7 @@ week, and is written to submissions/<tag>.csv; src/blend.py then averages their 
 - scheme: a scheme-level model that scores candidate schemes and passes the score to their payments
   (scripts/scheme_model.py).
 - v13cf: stage 1 plus a fold-consistent stage 2 with first-time-pair neighbour scores (src/stage2.py --extra ftp).
+The last step adds a plain-English reason column (scripts/add_reasons.py); it does not change the scores.
 Seeds are fixed, so a re-run gives the same file.
 """
 import os
@@ -34,6 +35,7 @@ STEPS = [
     ({}, [PY, "-m", "src.stage2", "--tag", "v13cf", "--modules", "local,episodes,isolation,patterns,shape", "--sub", "none",
           "--seeds", "2", "--consistent", "--extra", "ftp", "--predict", "--testpred", "folds"]),
     ({}, [PY, "-m", "src.blend", "--out", "final"] + [f"{SUB}/{m}.csv" for m in MEMBERS]),
+    ({}, [PY, "scripts/add_reasons.py", f"{SUB}/final.csv"]),
 ]
 SINGLE = [({}, [PY, "scripts/realmotif_run.py", "--tag", "final", "--seeds", "2"])]
 
