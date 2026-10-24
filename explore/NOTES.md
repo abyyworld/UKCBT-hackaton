@@ -73,3 +73,8 @@ What we learned (scenario medians in train):
 ## Pseudo-labelling (dropped)
 See `explore/PSEUDO.md`. Best setting looked like +1.16 ALL on seeds 0 to 2 (local), but only +0.03 on fresh seeds
 3 and 4, and +0.44 with local + episodes. Noise, so not used.
+
+## Suggestion for Aby: code ZIP contents
+`scripts/make_zip.sh` currently packs `src run.py requirements.txt README.md SUBMISSION.md LICENSE ATTRIBUTION.md
+TEAM_RULES.md scripts`. The rules also want the slides or report, team details and the predictions with validation
+results. Suggest adding `report TEAM.md explore/*.md` and `submissions/final.csv` (3 MB, fits the 8 MiB limit).
