@@ -72,5 +72,21 @@ first-time pairs, episodes), features, model and validation (grouped 5-fold out-
 placeholders), two or three flagged cases with transaction hashes, one look-alike we deliberately do not flag, limits
 and next steps, AI disclosure. Ask the user for the latest scores at 15:00 and fill them in.
 
+### Task 5: medium cases (the next big gain). You own `src/features/medium.py`
+Check `NOW.md` first and mark this task "in progress". Medium suspicious cases (225 in train, AP only about 6) are
+the same motifs as the easy ones but stretched over about 1.8 hours, with gaps of about 18 minutes, built almost
+entirely from first-time wallet pairs (98% against 55% for normal payments). Normal look-alikes are faster
+(about 10 minute gaps, about 1 hour span). Write `build(txs)` that finds slow motifs among first-time pairs only:
+- fan-out: the sender's number of first-time recipients within 30m, 1h, 2h and 4h after this payment, and how even
+  the gaps are;
+- fan-in: the receiver's number of first-time senders within the same windows before this payment;
+- chain: the receiver pays a first-time pair onward 5 to 60 minutes later, then that wallet does the same (depth);
+- bipartite and stack: senders of first-time pairs that share two or more first-time recipients within 3 hours
+  (complete small blocks of new pairs);
+- these counts relative to what the same wallet does on other days of the week.
+Compare `python -m src.cv --modules local,medium --tag medium` with `python -m src.cv --modules local --tag base`
+(single-seed runs move by about 1 point, so only trust gains above that). Push `medium.py` only if ALL rises.
+Write the numbers in `NOW.md`.
+
 ### When done or stuck
 Write what you found in `explore/NOTES.md`, push, and tell the user.

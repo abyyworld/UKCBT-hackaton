@@ -6,6 +6,7 @@ Read this before your first push. These rules keep us fast, keep the entry valid
 - Everyone works on `main`. Run `git pull --rebase` before every push.
 - Partner owns: `explore/`, `report/`, `src/features/relay.py`, `LICENSE`, `ATTRIBUTION.md`, `SUBMISSION.md`. Aby owns everything else in `src/` and `run.py`. Suggest changes to files you do not own in `explore/NOTES.md` instead of editing them.
 - Partner: start with `PARTNER_GO.md`.
+- **Both AIs check and update `NOW.md` before starting any task**, so we never work on the same thing twice.
 - Never commit `data/`, any zip, `.venv/`, the portal access code, passwords or API keys. The repo is public.
 - Small commits with clear messages.
 
