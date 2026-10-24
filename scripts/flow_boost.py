@@ -87,6 +87,8 @@ if __name__ == "__main__":
     ap.add_argument("--band-top", type=int, default=1200, help="neighbours must sit in the base top this many rows")
     ap.add_argument("--max-deg", type=int, default=300, help="wallets with more counterparties are hubs, ignored")
     ap.add_argument("--dust-usd", type=float, default=1.0)
+    ap.add_argument("--hours", default="6,24", help="time windows to try, comma separated")
+    ap.add_argument("--lams", default="0.15,0.30", help="lift strengths to try, comma separated")
     args = ap.parse_args()
 
     test_txs, _ = load_split("test")
@@ -102,13 +104,13 @@ if __name__ == "__main__":
     top_deg = deg.reindex(pd.concat([test_txs["sender"].iloc[top], test_txs["receiver"].iloc[top]]).to_numpy())
     print("counterparties of wallets on the top 400:", top_deg.describe()[["min", "25%", "50%", "75%", "max"]].round(0).to_dict())
 
-    for hours in (6, 24):
-        nbr = neighbour_max(test_txs, base, hours * 3600, args.max_deg, args.dust_usd)
+    for hours in [float(h) for h in args.hours.split(",")]:
+        nbr = neighbour_max(test_txs, base, int(hours * 3600), args.max_deg, args.dust_usd)
         moved = (nbr >= 1 - args.band_top / len(tx)).sum()
         print(f"window {hours} h: {moved} payments have a confident quiet-wallet neighbour")
-        for lam in (0.15, 0.30):
+        for lam in [float(x) for x in args.lams.split(",")]:
             score = boost(base, nbr, lam, args.keep, args.band_top)
-            write(f"fb_l{int(lam * 100)}_t{hours}", test_txs, score, base)
+            write(f"fb_l{round(lam * 100)}_t{hours:g}_b{args.band_top}", test_txs, score, base)
             new_top = set(np.argsort(-score)[:2000]) - set(np.argsort(-base)[:2000])
             print(f"  lambda {lam}: {len(new_top)} payments enter the top 2,000")
 
