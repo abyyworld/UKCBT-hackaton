@@ -1,5 +1,36 @@
 # Partner go-plan
 
+## CURRENT DIRECTION (read this first, updated 13:05)
+
+**Score:** our best leaderboard run is 68.6 (v16, a blend of v13 and v14). The leader is at 71.1, so we need about +2.5.
+**Why we are behind:** the top 1% is already full of easy cases for every team. The points left are in the middle of the
+ranking: medium cases (9.7 points available) and fast normal look-alikes. Hard relay cases hold 13.6 points but nobody
+catches them yet.
+
+**Who does what (check `NOW.md`, never duplicate):**
+| Owner | Work |
+|---|---|
+| Aby (main session) | combines everything, uploads, `run.py`, final blend, v17 real-vs-look-alike run |
+| Second session | stage 2 (`src/stage2.py`) |
+| Hunter 1 | hard relay cases (`src/features/hardrelay.py`) |
+| Hunter 2 | pushing normal hub traffic down (`src/features/hubs.py`) |
+| Alternative method session | whole-scheme model from scratch for blending (`scripts/scheme_model.py`) |
+| **Partner helpers 1 to 3** | **medium cases: slow motifs, value matching, wallet reuse (keep these, they are claimed)** |
+| **Partner** | **slides, `report/EXAMPLES.md`, `ATTRIBUTION.md` (all AI sessions used), final reproducibility check** |
+
+**Shared baseline for every feature test:** `python -m src.cv --modules local,episodes,isolation,patterns,shape`
+(seed 0, stage 1): ALL 61.23, easy 80.75, medium 9.42. A new module goes in only if ALL rises by 0.5 or more, or
+medium rises by 1 or more with ALL not dropping. Push only the module file (`src/features/<name>.py`) plus a NOW.md row
+with the numbers. The main session then adds it to the final run.
+
+**Timeline:** findings pushed by 14:45. Feature freeze 15:00. Final run 15:00 to 15:30 and upload by 15:30.
+Slides final by 15:45 with the final numbers (ask Aby). Code ZIP and everything uploaded by 16:15.
+
+**Rules reminder:** commits as plain messages, no AI trailers. No labels, family, difficulty, scenario_id or cohort_id
+as features. No em dashes in anything humans read.
+
+---
+
 **For the partner:** open this repo in Claude Code (or any AI coding assistant) and send:
 "Read PARTNER_GO.md and TEAM_RULES.md, then wait. When I type go, carry out the tasks in order."
 Then type **go**.
