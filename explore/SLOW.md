@@ -10,6 +10,7 @@ with ALL not falling.
 | + v1 matched hops and flow neighbours | 59.37 61.31 58.36 | 59.68 | 79.13 | 7.54 |
 | + v2 closure, windows 0.5, 1, 2, 4 h | 60.13 62.02 58.01 | 60.05 | 78.98 | 7.48 |
 | **+ v2 closure, windows 1, 2, 4, 6 h (kept)** | 60.30 61.74 58.28 | **60.11** | 79.01 | 7.96 |
+| + v3 = v2 plus span and median gap of the closed structure (dropped) | 59.75 61.49 57.56 | 59.60 | 78.25 | 7.46 |
 | base, medium rows weighted x3 (`W_MEDIUM=3`) | 59.45 60.75 57.40 | 59.20 | 78.38 | 7.36 |
 | + v2 closure 1-6 h, `W_MEDIUM=3` | 59.59 61.97 57.43 | 59.67 | 78.14 | 7.69 |
 
@@ -44,6 +45,9 @@ they do.
 - Exclusive use (angle 3) does not exist here. Planted wallets are shared with other scenarios as much as normal
   look-alike wallets are (median 10 suspicious and about 140 normal other scenarios per scenario, for easy, medium
   and look-alikes alike).
+- At closure 2 or more (2 h), the payments that compete with medium are the non-relay normal look-alikes (369 against
+  77 medium; background 4, normal relays 9). Tempo of the closed structure separates medium from them only weakly
+  (AUC 0.55 to 0.63), and adding it lowered ALL, so v3 was dropped.
 - Up-weighting medium rows (`W_MEDIUM=3`) lowers both ALL and medium.
 
 Scripts: `explore/slow_auc.py` (single-feature AUC and AP, medium against normal), `explore/shape_cv.py`.
