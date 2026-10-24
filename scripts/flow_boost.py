@@ -30,10 +30,13 @@ MEMBERS = ["v17", "v28", "v17r", "v26", "scheme", "v13cf"]
 
 def seconds(ts):
     t = pd.Series(ts)
-    if np.issubdtype(t.dtype, np.datetime64):
-        return (t.astype("int64") // 10**9).to_numpy()
+    if not pd.api.types.is_numeric_dtype(t):
+        return pd.to_datetime(t).dt.as_unit("s").astype("int64").to_numpy()
     t = t.astype("int64").to_numpy()
-    return t // 10**9 if t.max() > 1e14 else (t // 1000 if t.max() > 1e11 else t)
+    for unit in (10**9, 10**6, 10**3):
+        if t.max() > 1e9 * unit / 10:
+            return t // unit
+    return t
 
 
 def neighbour_max(txs, rank, window, max_deg, dust_usd):
@@ -48,9 +51,13 @@ def neighbour_max(txs, rank, window, max_deg, dust_usd):
     deg = long.groupby("w")["cp"].nunique()
     long = long[long["w"].map(deg) <= max_deg]
     best = np.zeros(len(txs))
+    skipped = 0
     for _, g in long.groupby("w"):
         idx = np.unique(g["i"].to_numpy())
         if len(idx) < 2:
+            continue
+        if len(idx) > 3000:
+            skipped += 1
             continue
         t = ts[idx]
         src = np.where(usd[idx] >= dust_usd, rank[idx], 0.0)
@@ -58,6 +65,7 @@ def neighbour_max(txs, rank, window, max_deg, dust_usd):
         np.fill_diagonal(close, False)
         m = np.where(close, src[None, :], 0.0).max(axis=1)
         best[idx] = np.maximum(best[idx], m)
+    print(f"  wallets kept {long['w'].nunique()}, hubs dropped {(deg > max_deg).sum()}, oversized skipped {skipped}")
     return best
 
 
@@ -77,7 +85,7 @@ if __name__ == "__main__":
     ap.add_argument("--base", default="submissions/final.csv")
     ap.add_argument("--keep", type=int, default=400, help="base top rows left untouched")
     ap.add_argument("--band-top", type=int, default=1200, help="neighbours must sit in the base top this many rows")
-    ap.add_argument("--max-deg", type=int, default=12, help="wallets with more counterparties are hubs, ignored")
+    ap.add_argument("--max-deg", type=int, default=300, help="wallets with more counterparties are hubs, ignored")
     ap.add_argument("--dust-usd", type=float, default=1.0)
     args = ap.parse_args()
 
@@ -85,6 +93,14 @@ if __name__ == "__main__":
     tx = test_txs["tx"].to_numpy()
     read = lambda p: pd.read_csv(p).set_index("TRANSACTION_HASH")["score"].reindex(tx).rank(pct=True).to_numpy()
     base = read(args.base)
+    ts = seconds(test_txs["ts"].to_numpy())
+    print(f"time span {(ts.max() - ts.min()) / 86400:.2f} days (should be about 7)")
+    top = np.argsort(-base)[:400]
+    w = pd.concat([test_txs["sender"], test_txs["receiver"]])
+    cp = pd.concat([test_txs["receiver"], test_txs["sender"]])
+    deg = pd.Series(cp.to_numpy(), index=w.to_numpy()).groupby(level=0).nunique()
+    top_deg = deg.reindex(pd.concat([test_txs["sender"].iloc[top], test_txs["receiver"].iloc[top]]).to_numpy())
+    print("counterparties of wallets on the top 400:", top_deg.describe()[["min", "25%", "50%", "75%", "max"]].round(0).to_dict())
 
     for hours in (6, 24):
         nbr = neighbour_max(test_txs, base, hours * 3600, args.max_deg, args.dust_usd)
