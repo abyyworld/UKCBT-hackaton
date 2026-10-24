@@ -4,7 +4,8 @@ Read this before your first push. These rules keep us fast, keep the entry valid
 
 ## Git
 - Everyone works on `main`. Run `git pull --rebase` before every push.
-- Partner code goes in `explore/`, slides and the report go in `report/`. The pipeline in `src/` and `run.py` belongs to Aby. Suggest pipeline changes instead of editing those files.
+- Partner owns: `explore/`, `report/`, `src/features/relay.py`, `LICENSE`, `ATTRIBUTION.md`, `SUBMISSION.md`. Aby owns everything else in `src/` and `run.py`. Suggest changes to files you do not own in `explore/NOTES.md` instead of editing them.
+- Partner: start with `PARTNER_GO.md`.
 - Never commit `data/`, any zip, `.venv/`, the portal access code, passwords or API keys. The repo is public.
 - Small commits with clear messages.
 
