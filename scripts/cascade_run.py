@@ -61,10 +61,14 @@ if __name__ == "__main__":
     test_txs, X_test = build_split("test", MODULES)
     s_tr = pd.read_parquet(args.base_oof).set_index("tx")["oof"].reindex(lab.index).to_numpy()
     s_te = pd.read_csv(args.base_test).set_index("TRANSACTION_HASH")["score"].reindex(test_txs["tx"]).to_numpy()
-    Xa = pd.concat([X, collective_features(train_txs, s_tr, "b_")], axis=1)
-    Xa["v17_score"] = s_tr
-    Xb = pd.concat([X_test, collective_features(test_txs, s_te, "b_")], axis=1)
-    Xb["v17_score"] = s_te
+    assert np.isfinite(s_tr).all() and np.isfinite(s_te).all(), "missing base scores"
+    # train OOF scores are probabilities, the test file holds rank-normalised scores: put both on the percentile
+    # scale so the score feature and its group aggregates mean the same thing on train and test
+    p_tr, p_te = rankdata(s_tr) / len(s_tr), rankdata(s_te) / len(s_te)
+    Xa = pd.concat([X, collective_features(train_txs, p_tr, "b_")], axis=1)
+    Xa["v17_score"] = p_tr
+    Xb = pd.concat([X_test, collective_features(test_txs, p_te, "b_")], axis=1)
+    Xb["v17_score"] = p_te
     Xb = Xb[Xa.columns]
     print(f"features: {Xa.shape[1]}, train {len(Xa)}, test {len(Xb)}")
     report(s_tr, lab, "v17 base")
