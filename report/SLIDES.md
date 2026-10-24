@@ -64,6 +64,10 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 - **Stage 2, collective scoring:** each payment also gets the stage 1 scores of the payments linked to it (same
   episode, same wallets nearby in time), and a second model learns from those. Missing steps of a scheme get pulled
   up by the rest of it.
+- **Real vs look-alike motif model:** a third LightGBM trained only on rows from the motif scenarios (the label
+  file's family column is used only to choose these training rows, never as an input). It learns what separates a
+  planted motif from its normal look-alike, and its scores feed stage 2. This took out-of-fold AP from 63.8 to 67.5
+  and medium from 10 to 18.
 - **Validation:** grouped 5-fold out-of-fold AP. Every planted scenario stays inside one fold, so a model never
   sees part of a scheme it is scored on. Single-seed results move by about 3 points, so we only kept ideas that
   helped on several seeds.
@@ -80,6 +84,7 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 | Local + episodes, stage 2 group scoring | 61.6 | | | | 67.3 |
 | + scheme isolation | 61.9 | | | | 67.6 (blend) |
 | v13: + first-time-pair patterns + motif shape, stage 2 | 63.8 | 79.2 | 10.0 | 2.1 | TODO |
+| v17: + real-vs-look-alike motif model feeding stage 2 | 67.5 | | 17.8 | | TODO |
 | Final | TODO | | | | TODO |
 
 - The leaderboard runs about 5.7 points above our out-of-fold AP; differences under 1 point are noise.
@@ -89,6 +94,7 @@ Fewer than 10 slides. Plain words. Placeholders are marked TODO.
 ---|---|---|---|---|---|
 | Baseline | 58.6 | 77.5 | 5.8 | 0.8 | TODO |
 | TODO | | | | | |
+| v17: + real-vs-look-alike motif model feeding stage 2 | 67.5 | | 17.8 | | TODO |
 | Final | TODO | | | | TODO |
 
 ---
