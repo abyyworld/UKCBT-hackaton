@@ -69,15 +69,25 @@ and `baseline.py`, which produces a valid submission and a score to beat.
 2. **XRP comes in drops.** For XRP rows, `SOURCE_VALUE` is in drops, and 1 XRP = 1,000,000 drops.
 3. **An asset is issuer address + symbol.** Group by `TOKEN_ADDRESS` and `SYMBOL`, because USD from two issuers is two different assets.
 4. **SendMax is a ceiling, not the cost.** The first transfer leg shows what was really paid, and `DELIVERED_AMOUNT` shows what arrived.
+   The signed amount can also overstate what arrived (partial payments), so never use it as the value.
 5. **Compare value in USD.** Use `market_rates.csv` for the hour that contains the payment.
 6. **Some fields are JSON text.** Parse `EXTRA_TRANSACTION_FIELDS` and `DELIVERED_AMOUNT`.
 
-Other ledger facts to keep in mind:
+Other ledger facts and traps:
 
 - A wallet is just an `r…` address, so we judge behaviour, not identity.
 - A conversion is a single transaction: the sender pays one asset and the receiver gets another through one or
   two liquidity providers, which produces 2 or 3 transfer rows.
 - Every transaction burns 10 to 15 drops of XRP as a fee, including token payments.
+- **Hubs look anomalous.** Exchange and payroll hubs have huge fan-in and fan-out, so give them their own class
+  instead of treating them as outliers. One exchange address serves many customers, told apart by destination tag.
+  If a tag is present, use the address and tag together as the customer.
+- **Failed transactions.** A `tec…` result paid a fee but moved nothing. If the data has a result field, leave
+  failed transactions out of value-flow edges but count them as a behaviour, and still score them.
+- **Dust drowns the graph.** Set near-worthless payments aside when computing fan-in, fan-out and paths, but
+  still give every one of them a score.
+- **Ripple time.** Raw XRPL times count seconds from 1 Jan 2000. Add 946,684,800 to get Unix time before matching
+  against the `market_rates.csv` hours.
 
 ### What is hiding in the labels
 
@@ -106,17 +116,26 @@ Every one of them also occurs in legitimate business, and context is what tells 
 | **Bipartite** | One group of wallets pays another, many to many, so every single pair stays small | Marketplace buyers and sellers, a company paying its suppliers | Dense payment blocks between two sets; groups with few outside contacts; many pairs active in the same window; similar amounts across pairs |
 | **Irregular network** | Many partial routes with splits, merges and returns, matching no fixed template | Everyday peer-to-peer payments between friends, families and local traders | Size and density of the connected group; number of distinct routes between two wallets; value into the group compared with value out; how tightly the activity is packed in time |
 
+The XRPL Commons deck adds two more shapes:
+
+- **Peel chain:** a long path of fresh wallets, each taking a small cut.
+- **Fresh-account batch:** new wallets funded by one parent minutes apart, used once, then deleted with `AccountDelete`.
+
 Behaviours that raise a flag:
 
 - **Rapid pass-through:** money leaves soon after it arrives and little is kept.
 - **Hops with no purpose:** long chains through wallets that do nothing else.
-- **Splitting:** one amount broken into many smaller payments.
+- **Splitting and structuring:** one amount broken into many smaller payments, often sized to stay under thresholds.
 - **Currency hopping:** converting through several assets to blur the trail.
 - **Round-tripping:** funds come back to where they started, possibly in another asset.
-- **Patterns over time:** a flow that only makes sense when you look at the whole week.
+- **Out of character:** activity that doesn't match the wallet's own earlier history.
+- **Patterns over time:** a flow that only makes sense when you look at the whole week. Compute features over
+  several window lengths, because a short window cuts slow flows in half. Flows at the edges of the 7-day split
+  are also cut off.
 
 **A pattern is not proof.** For example, a wallet that forwards 50 XRP minus a 15-drop fee 19 seconds later may be an
-automated service. A loop of 0.00001 XRP payments may be a bot test that is worth almost nothing.
+automated service. A loop of 40 payments of 0.00001 XRP around ten accounts may be a bot or a test, and its total is
+worth almost nothing.
 
 ## Rules
 
@@ -129,9 +148,12 @@ automated service. A loop of 0.00001 XRP payments may be a bot test that is wort
 
 Full terms: hackathon.ukcbt.org/terms
 
-> The XRPL Commons deck has hands-on exercises that pull live Mainnet data (`s2.ripple.com`, `account_tx`,
-> Isolation Forest on unlabelled data). Those exercises are for learning. The scored challenge uses the
-> **organiser's labelled synthetic dataset**, and outside transaction data is not allowed without approval.
+> **The two decks disagree about the data.** The XRPL Commons deck (pp. 10, 29–35, 44–49) describes the
+> challenge as pulling your own real Mainnet data, with no labels, and ranking accounts with Isolation Forest.
+> The Decode & Detect deck (slides 21–26) sets out the scored challenge: the organiser's **labelled synthetic
+> dataset**, one score per transaction, and no outside transaction data without approval. We follow
+> Decode & Detect, and use the Mainnet exercises only to learn the XRPL data model. Confirm this with the
+> organisers or the data package README on the day.
 
 ## Plan for the day
 
@@ -141,13 +163,20 @@ Full terms: hackathon.ukcbt.org/terms
 4. **Study the labels** by looking at the suspicious flows in training to see what makes them differ.
 5. **Build features** from timing, amounts, graph shape and each wallet's history.
 6. **Validate, then submit.** Hold out part of training and measure AP locally before spending uploads.
+   - Keep transactions from the same flow on one side of the split, so the hold-out is not leaked.
+   - Check that the ranking holds across different time slices of the week.
+   - Plant a few altered fan-outs or peel chains and check that the model still finds them. The test set has
+     variations that are not in training.
+   - Report held-out AP only. Never report training AP, or the accuracy of a rule built from the labels, as the model's score.
 
 Keep notes and a decision log as we go. The judges want to know *why* the model works, not only its score.
 
 ## The pitch
 
 1. **Problem and data:** which behaviour we target, what data we used and how we cleaned it.
-2. **Approach and evidence:** features, rules and model in plain words, then one or two real flagged cases.
+2. **Approach and evidence:** features, rules and model in plain words. Walk through two or three flagged cases
+   with their `TRANSACTION_HASH`es, and show a look-alike we deliberately leave unflagged (such as an exchange or
+   payroll hub), explaining why.
 3. **Limits and next steps:** what we would do with more labels, time or data. Being honest about limits scores well.
 
 Responsible analysis: say "flagged for review", show the evidence and say where every label came from.
