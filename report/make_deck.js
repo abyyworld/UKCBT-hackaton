@@ -3,6 +3,7 @@
 // Final scores are set in FINAL below once the last run is uploaded.
 const pptxgen = require("pptxgenjs");
 
+const PITCH = process.env.PITCH === "1";  // 6-slide, 3-minute version: skips slides 2, 4 and 5
 const FINAL = { oof: "67.5", lb: "69.2", label: "v17, best so far" };
 
 const THEME = {
@@ -68,6 +69,7 @@ s.addText("Catching laundering by its tempo", { placeholder: "title" });
 s.addText("Decode and Detect, UKCBT x XRPL AI Hack, 24 October 2026\nTeam Batman and Robin", { placeholder: "body" });
 s.addNotes("We score every transaction in a synthetic XRP-style ledger for how suspicious it is. Our one-line story: on this data, laundering gives itself away by how fast money moves through brand-new wallet pairs, and the hard part is telling it apart from normal businesses that build the same shapes.");
 
+if (!PITCH) {
 // 2. Problem and data
 pres.addSection({ title: "Problem" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Problem" });
@@ -80,6 +82,7 @@ card(s, 0.5, 3.15, 9.0, 1.15, "What we cleaned",
   "One row per transaction (1 to 3 transfer legs). XRP drops to XRP, assets keyed by issuer and symbol, every payment valued in USD at the hour's reference price. Suspicious cases: 64% easy, 18% medium, 18% hard.");
 s.addNotes("We rank transactions, not wallets. Average precision rewards putting real cases at the top of an analyst's queue, so only the order matters. The cleaning follows the organiser traps: drops, issuer plus symbol, USD at the hour.");
 
+}
 // 3. Tempo
 pres.addSection({ title: "Insight" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Insight" });
@@ -101,6 +104,7 @@ s.addText([
 ], { x: 6.0, y: 1.3, w: 3.5, h: 3.6, fontSize: 14, color: C.text2, valign: "top", isTextBox: true, paraSpaceAfter: 8 });
 s.addNotes("This is the key finding. Novelty alone is not enough because half of normal payments are first-time pairs too. What separates laundering is unusual tempo for the shape: easy schemes step about every minute, normal look-alikes every ten, and medium schemes are deliberately stretched to about eighteen.");
 
+if (!PITCH) {
 // 4. Features
 pres.addSection({ title: "Method" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Method" });
@@ -139,6 +143,7 @@ s.addText([
 ], { x: 0.5, y: 3.1, w: 9.0, h: 1.95, fontSize: 14, color: C.text2, valign: "top", isTextBox: true, paraSpaceAfter: 6 });
 s.addNotes("Stage 2 is collective scoring: if most of a scheme scores high, its missing first and last steps get pulled up. The look-alike model learns only from planted scenarios and their normal twins, which is where most of our false positives were.");
 
+}
 // 6. Results
 pres.addSection({ title: "Results" });
 s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Results" });
@@ -205,7 +210,7 @@ card(s, 5.1, 1.2, 4.4, 3.8, "AI use and reproducibility",
 s.addNotes("Being honest about limits: the hard relays and random labels cap any honest model at roughly 82 average precision on train. The test week also differs from training, which is why our offline gains did not all transfer. Everything is reproducible with one command.");
 
 (async () => {
-  const out = "report/DecodeDetect_BatmanAndRobin.pptx";
+  const out = PITCH ? "report/Pitch_3min_BatmanAndRobin.pptx" : "report/DecodeDetect_BatmanAndRobin.pptx";
   await pres.writeFile({ fileName: out });
   if (process.argv[2]) {
     const { applyTheme } = require(process.argv[2]);
