@@ -5,8 +5,8 @@ Team **Batman and Robin**, Decode & Detect, 24 October 2026.
 ## 1. Requirements
 
 - Python 3.13
-- Measured: 6.7 minutes from raw data to the upload file on a 4-core Linux machine with 15 GB of RAM (feature caches
-  empty, v13). No GPU and no internet needed once the packages are installed.
+- About 45 minutes from raw data to the upload file on a 4-core Linux machine with 15 GB of RAM (feature caches
+  empty). TODO: measured time of the final check. No GPU and no internet needed once the packages are installed.
 
 ```sh
 python3 -m venv .venv
@@ -32,8 +32,18 @@ data/decode-and-detect-test-data/transactions.parquet
 ```
 
 This writes `submissions/final.csv`: one row per test transaction (40,101 rows), columns `TRANSACTION_HASH,score`.
-It runs `src.stage2` (see `run.py`): stage 1 LightGBM on the feature modules `local, episodes, isolation, patterns,
-shape`, then stage 2 collective scoring on top. Each model is averaged over 2 seeds.
+It builds five models and rank-averages them with `src/blend.py` (see the docstring of `run.py`):
+
+| Member | What it is | Script |
+|---|---|---|
+| v17 | stage 1 LightGBM, a real-vs-look-alike model on motif-shaped payments, stage 2 group scoring | `scripts/realmotif_run.py` |
+| v28 | the same recipe on within-week percentile features plus the `slow` closure features | `scripts/robust2_run.py` (`SPLIT_RANK=1`) |
+| v17r | v17 without the amount-evenness features | `explore/robust_run.py` |
+| v26 | rank average of v17 and a pseudo-labelling model cross-fitted on the unlabelled test week | `scripts/pseudo_adapt.py` |
+| scheme | scores whole candidate schemes and passes the score to their payments | `scripts/scheme_model.py` |
+
+Features: `local, episodes, isolation, patterns, shape` (and `slow` for v28). Each model is averaged over 2 seeds.
+`python run.py --single` builds only v17 (about 10 minutes).
 Feature caches go to `data/cache/`; delete that folder to rebuild from scratch.
 
 All randomness uses fixed seeds set in the code, so the same data gives the same file.
@@ -48,4 +58,4 @@ To measure our validation score (grouped 5-fold out-of-fold average precision on
 
 - Out-of-fold AP (grouped 5-fold): TODO
 - Leaderboard score of the submitted file: TODO
-- Commit: TODO
+- Commit: `e896834`
