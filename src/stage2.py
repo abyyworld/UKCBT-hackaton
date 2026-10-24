@@ -86,6 +86,7 @@ if __name__ == "__main__":
     ap.add_argument("--predict", action="store_true")
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--aux", action="store_true", help="also stack motif and relay membership models")
+    ap.add_argument("--rounds", type=int, default=1, help="rounds of collective scoring on top of stage 1")
     args = ap.parse_args()
     modules = args.modules.split(",")
 
@@ -99,6 +100,12 @@ if __name__ == "__main__":
     X2 = pd.concat([X, C], axis=1)
     oof2 = np.mean([oof_scores(X2, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
     report(oof2, lab, f"{args.tag} stage2")
+    later = []  # (X_k, scores) for rounds after the first
+    for k in range(2, args.rounds + 1):
+        Xk = pd.concat([X2, collective_features(train_txs, oof2, f"r{k}_")], axis=1)
+        oof2 = np.mean([oof_scores(Xk, y, groups, seed=sd) for sd in range(args.seeds)], axis=0)
+        report(oof2, lab, f"{args.tag} round{k}")
+        later.append(Xk)
     os.makedirs("data/oof", exist_ok=True)
     pd.DataFrame({"tx": lab.index, "oof": oof2}).to_parquet(f"data/oof/{args.tag}.parquet")
 
@@ -108,4 +115,7 @@ if __name__ == "__main__":
         C_test = pd.concat([collective_features(test_txs, o, f"{k}_") for k, o in s1_test.items()], axis=1)
         X2_test = pd.concat([X_test, C_test], axis=1)
         raw = fit_predict(X2, y, X2_test, args.seeds)
+        for k, Xk in enumerate(later, start=2):
+            Xk_test = pd.concat([X2_test, collective_features(test_txs, raw, f"r{k}_")], axis=1)
+            raw = fit_predict(Xk, y, Xk_test, args.seeds)
         write(args.tag, test_txs, raw, s1_test["susp"])
