@@ -21,7 +21,7 @@ the other person, do not work on it. Pick an open task or ask your human. Pull, 
 | Task | Owner | Status | Files |
 |---|---|---|---|
 | Local, episode and fingerprint features | Aby | done | `src/features/local.py`, `episodes.py`, `fingerprint.py` |
-| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | in progress, see `## Stage 2 second session` below | `src/stage2.py` |
+| Stage 2 group scoring: neighbour features, rounds, settings | Aby, second session | done 15:00, final summary in `## Stage 2 second session` below. Pick: v13c | `src/stage2.py` |
 | Hard relay cases hunter | Aby, hunter session 1 | in progress, report by 14:45 | `src/features/hardrelay.py`, `explore/HARD.md` |
 | Normal hub down-ranking (to lift medium) | Aby, hunter session 2 | in progress, report by 14:45 | `src/features/hubs.py`, `explore/MEDIUM2.md` |
 | Alternative method: whole-scheme classifier (rebuild schemes, score each scheme, map to payments) | Aby, alt session | in progress, due 14:40 | `scripts/scheme_model.py` |
@@ -92,3 +92,13 @@ Uploaded for LB: pending. Next: more pattern windows (v14).
   Command (about 5 min): `python -m src.stage2 --tag v13c --modules local,episodes,isolation,patterns,shape --sub none --seeds 2 --consistent --predict --testpred folds`
   Suggested LB A/B: v13c against v17. If v13c is not worse, it is the safer final pick.
 - **Update 14:48, nested holdout with 2 seeds:** consistent stage 2 (no realmotif) 63.34 vs stage 1 62.74 mean per-fold, wins 4 of 5 outer folds (pooled 61.52 vs 60.53, easy 81.2 vs 79.7). Rank blend 0.75 v13c + 0.25 stage 1: 63.46 (gain too small to bother).
+- Relay subset model on the nested holdout (1 seed): 62.02 vs 63.04 without it. Both subset models (realmotif, realrelay) look good on leaky OOF but hurt on held-out scenarios.
+
+### Final summary (second session, 15:00)
+- Recommended stage 2 for the final upload: **v13c**, `python -m src.stage2 --tag v13c --modules local,episodes,isolation,patterns,shape --sub none --seeds 2 --consistent --predict --testpred folds` (about 5 min, writes `submissions/v13c.csv` through `src.predict.write`).
+- Why: it is the only stage 2 variant that beats pure stage 1 on a nested holdout (63.34 vs 62.74, 4 of 5 outer folds). v17 style stage 2 (leaky collective features + realmotif) scores 61.00 there, below stage 1.
+- The leak: normal payments on planted wallets are not grouped with their scheme, so their OOF stage-1 scores come from models that saw the planted labels. Stage 2 then learns to trust high neighbour scores that will not exist on test. Planted wallets are reused across almost all scenarios, so wallet-aware fold groups are not possible (one giant group). `--consistent` fixes it by scoring each row's neighbours with the fold model that never saw its fold.
+- Honest OOF from now on: use `--consistent`. The old leaky OOF overstates stage 2 by about 4 points (v17 67.47 leaky vs 63.49 consistent).
+- If the LB still prefers v17 over v13c, trust the LB for the final pick. The nested holdout is also an approximation: held-out payments have training payments as neighbours.
+- Tried and dropped (noise or worse): low-score neighbour counts and fractions, wallet history profiles, suspect-cluster isolation, round 2, LightGBM settings (learning rate, leaves, min child samples, feature fraction), test scores from fold models instead of a full fit (no change on the nested holdout).
+- Nested holdout scripts are not committed (scratch only). Ask the second session if you need them.
